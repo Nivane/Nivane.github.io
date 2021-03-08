@@ -1,0 +1,209 @@
+---
+title:  "浅谈分布式数据库技术"
+date:   2021-02-07 00:00:00
+tags:
+    - 数据库
+    - SQL
+---
+
+# 浅谈分布式数据库技术 (计算，优化，存储)
+
+## 编译执行和解释执行
+* 解释执行：火山模型和向量化执行
+
+常用于OLTP,  也用于一些老的OLAP
+
+Oracle, MySQL, SQL Server, Doris
+
+* 编译执行：
+通常用语OLAP分析
+HyPer, MemSQL, Hekato, Impala, Spark Tungsten[2]
+
+## 火山模型(Volcano Iterator Model)
+火山模型[1] 
+
+因为在90年代，计算机的内存资源昂贵，相比于CPU的执行效率，IO效率要更差(IO墙效应)，因此火山模型将内存资源更多地用于IO的缓存设计，没有优化CPU的执行效率[3]
+
+关系代数算子(relational-algebraic operator/RA operator)：
+
+tuple stream:
+
+interface: open, next, close; next调用从stream中产生新的tuple
+
+虚函数调用开销：next调用导致很深的虚函数嵌套，编译器无法对虚函数进行inline优化，每次虚函数调用都需要查找虚函数表。
+
+CPU分支预测不友好：复杂的虚函数嵌套容易导致预测失败并且流水线变得混乱->CPU执行效率低下
+
+instruction：指令
+
+scalar:标量 a tuple data
+
+vector:矢量 a vector(batch) of data
+
+loop unrolling or loop pipelining: 循环展开 循环流水线
+
+缺点：
+指令缓存未命中 instruction cache misses：
+指令和数据会被加载到Cache Memory中，如果查询过大，生成的execution code会更多，指令也会更多，并且一个general query execution code会导致更多的branching，这些指令都缓存到Cache Memory，那缓存中会存在更多的无用的指令。
+更容易导致缓存未命中。
+因为分支(branching)和抽象(abstraction)的问题，为了实现一个通用的query execution code generator，肯定会存在很多分支和抽象。
+
+## 解决火山模型导致 instruction cache misses 问题的两种方式：向量化执行和编译执行
+向量化执行缓解了指令缓存未命中的问题。
+编译执行解决了指令缓存未命中的问题。
+
+### 向量化执行(Vectorized Query)
+向量化的是instruction还是data?
+data
+
+利用DLP(Data Level Parallelism)，使用单指令操作多条记录
+单指令是指无需为每一行记录频繁地load指令，加载一次指令，并操作一批数据。这样就可以减少instruction cache misses
+
+向量化执行：火山模型的改进方案，火山模型是tuple-at-a-time的实现，向量化执行是batch-tuple-at-a-time。
+
+每个算子执行完传递一行给上游算子继续执行，函数调用过多，且大量的虚函数调用，条件分支预测失败->CPU利用率低。
+
+缓解了instruction cache misses问题，但没有根治。
+
+### 编译执行(Compilation Query)
+* 什么是编译执行？
+从编译层面解决instruction cache misses的问题。
+
+execution code generation 不应该包含不必要的部分：包括branching和abstraction。
+
+Volcano Iterator Model是非常通用的，适合所有查询，所以包含了很多branching和abstraction。
+
+每次针对查询本身生成特定代码，消除冗余branching和abstraction。
+
+* 编译执行如何实现？
+* 确定各种算子和算子的执行顺序
+* 合并各种函数调用为一个
+* 基于存储格式和硬件支持，应用优化，比如循环展开，循环流水线和SIMD指令
+
+优点：
+* 没有虚函数调用
+* 数据在寄存器中
+* 编译器循环展开，循环流水线，SIMD的应用
+
+缺点：
+* 编译开销：为查询生成定制的查询代码存在一定开销。对于数据量很少的查询来说，编译开销可能比执行开销更小。
+
+
+## SIMD
+single instruction multiple data
+
+## LLVM JIT
+## CodeGen
+## Operator 算子
+* project
+* filter
+* scan
+* join
+* Aggregate
+* union
+
+## 词法分析 语法分析 语义分析 AST 关系代数表达式(RA) 
+编译器分为frontend和backend，lexer是frontend的第一阶段。
+### 词法分析(lexer/scanner)
+如：jflex 
+词法单元分类：
+identifier: names the programmer chooses;
+keyword: names already in the programming language;
+separator (also known as punctuators): punctuation characters and paired-delimiters;
+operator: symbols that operate on arguments and produce results;
+literal: numeric, logical, textual, reference literals;
+comment: line, block (Depends on the compiler if compiler implements comments as tokens otherwise it will be stripped).
+
+Examples of token values
+Token name	        Sample token values
+identifier	            x, color, UP
+keyword	                if, while, return
+separator	            }, (, ;
+operator	            +, <, =
+literal	                true, 6.02e23, "music"
+comment	                /* Retrieves user data */, // must be negative
+
+输入：
+x = a + b * 2;
+输出：(token name, token value)
+[(identifier, x), (operator, =), (identifier, a), (operator, +), (identifier, b), (operator, *), (literal, 2), (separator, ;)]
+
+### 语法分析(parser/syntax analysis)
+scannerless parser：将lexer和parser合并为一步，并发执行。
+parser是frontend的第二阶段。
+如：cup
+
+实现：
+* 正则表达式
+* 模式匹配
+
+token生成表达式Expr，在context-free语法下，按照token出现的*顺序*，递归组成Expr。
+
+输入：tokens
+
+输出: parse tree / abstract syntax tree 抽象语法结构树
+### 语义分析 semantic analysis/ context-sensitive analysis
+验证表达式含义，并执行适当的操作: 从source code收集语义信息，类型检查，变量声明。
+
+编译器
+
+输入：AST?
+
+输出：
+### AST Abstract Syntax Tree
+AST: source code的抽象语法结构
+抽象：没有展示source code中出现的所有细节
+
+
+输入：
+
+输出： 
+### 由 AST 到关系代数表达式，可以使用 visitor 模式遍历
+### 查询优化器以关系代数表达式作为输入，输出查询执行计划。逻辑执行计划/物理执行计划。 单节点执行计划/分布式执行计划
+
+## 虚函数 
+虚函数：定义了要执行的目标函数，但目标的具体指向在编译时无法确定。
+
+## spark tungsten
+
+
+特性：
+* 可以被继承和覆盖，在面向对象中是多态的重要组成部分
+* Java中所有非final类型的方法都是虚函数
+
+## PIPELINE
+上游stage不需要等下游stage完全执行结束就可以拉取数据并执行计算
+
+## 存储系统 数据模型 数据组织 数据格式
+## 列存储 ORC PARQUET
+##  Cumulative Compaction / Base Compaction
+## RBO CBO
+## MPP SCATTER/GATHER
+## SQL Expr
+* literal
+* expr
+* predicate
+* conjunction 
+* function
+* ref
+* slot
+PREDICATE CONJUNCTION
+
+FROM 
+JOIN ON  
+WHERE 
+ORDER BY 
+GROUP BY 
+HAVING
+
+
+## MVCC
+## 线性一致性/强一致性
+## 
+
+[1] Vectorized and Compiled Queries — Part 1 https://medium.com/@tilakpatidar/vectorized-and-compiled-queries-part-1-37794c3860cc
+[2] 数据库查询引擎的进化之路 https://zhuanlan.zhihu.com/p/41562506
+[3] Volcano, an Extensible and Parallel Query Evaluation System
+
+SQL原理解析
+https://mp.weixin.qq.com/s/v1jI1MxEHPT5czCWd0kRxw

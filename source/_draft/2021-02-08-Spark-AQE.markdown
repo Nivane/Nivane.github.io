@@ -1,0 +1,15 @@
+---
+title:  "Spark AQE"
+date:   2021-02-02 00:00:00
+tags:
+    - Spark
+---
+
+AQE
+ANALYST
+TUNGSTEN
+RSS: REMOTE SHUFFLE SERVICE
+SPARK THRIFT SERVICE
+
+
+2020-10-24-Hive/Spark 高频配置参数.markdown

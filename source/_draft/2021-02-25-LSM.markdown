@@ -1,0 +1,34 @@
+---
+title:  "LSM"
+date:   2021-02-25
+tags:
+    - 存储
+---
+
+
+# LSM
+
+
+
+## BigTable memtable 和 SSTable
+
+最近更新的操作保存在一个排序缓存中，称为memtable。
+持久化，排序的，不可更改的Map结构。<Key, Value> kv都是任意的Byte串。
+较早的更新操作放在一系列SSTable中。
+
+一个有效的读操作在**一个由一系列SSTable和memtable合并的视图**中执行。
+SSTable和memtable按照字典排序
+ 
+[1] https://zhuanlan.zhihu.com/p/181498475
+[2] https://rocksdb.org.cn/doc/Leveled-Compaction.html
+[3] https://www.jianshu.com/p/e89cd503c9ae?utm_campaign=hugo
+[4] https://cloud.tencent.com/developer/article/1441835
+
+
+
+
+
+
+
+
+

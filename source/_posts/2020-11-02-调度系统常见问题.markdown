@@ -1,0 +1,25 @@
+---
+title:  "调度系统常见问题"
+date:   2020-11-02 00:00:00
+tags:
+    - 大数据任务调度
+---
+
+
+# 调度系统常见问题
+
+任务调度系统作为大数据平台的核心组件，涉及的场景繁多，各个公司的数据平台实现的方案也有所不同，自研或者在开源系统基础上做二次开发，都会有适合自己的调度实现方案。
+
+现在的开源调度也有很多，比如airbnb的airflow，易观apache olphinscheduler，azkaban，阿里开源的zeus等等。
+
+![scheduler](/images/scheduler/scheduler.png)
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,57 @@
+---
+title:  "Raft"
+date:   2021-02-02 00:00:00
+tags:
+    - RAFT
+    - 分布式共识
+    - 一致性
+---
+
+
+
+# Raft
+
+## Raft
+* 分布式共识算法
+* 容错和一致
+* 划分为相对独立的子问题，解决了实践系统所需的所有主要部分。
+
+
+
+* 共识：分布式系统中，多个服务器能够在某个值上达成一致，一旦达成一致，决策就被确定。
+
+* 典型的共识算法可以保证**大多数原则**，即集群的大多数节点正常工作，则集群正常工作。
+
+
+### replicated state machine
+共识通常出现在复制状态机的背景下，复制状态机是构建容错系统的通用方法。
+
+状态机是我们要使其容错的组件，例如哈希表。对于客户端来说，即使群集中的少数服务器出现故障，它们也会与单个可靠的状态机进行交互。
+
+每个状态机都从其日志中获取输入命令，使用共识算法来对服务器日志中的命令达成一致。
+
+
+共识算法必须确保: 如果有任何状态机set x = 3作为第n条命令，则其他任何状态机都不会应用其他的命令作为第n条命令。 
+结果就是每个状态机处理相同的一系列命令，从而产生相同的一系列结果，并到达相同的一系列状态。
+
+
+
+
+
+
+### Paxos两个缺点
+* 不易于理解
+* 不利于工程实践
+
+## Leader Election - 领导选举
+
+## Log Replication - 日志复制
+
+## Safety - 安全
+
+## Membership Change - 成员变更
+
+
+[1][http://thesecretlivesofdata.com/raft/](http://thesecretlivesofdata.com/raft/)
+[2][https://raft.github.io/raft.pdf](https://raft.github.io/raft.pdf)
+[3][https://raft.github.io/](https://raft.github.io/)

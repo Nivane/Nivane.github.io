@@ -1,0 +1,36 @@
+---
+title:  "开窗函数"
+date:   2020-10-14 00:00:00
+tags:
+    - SQL
+---
+
+
+# 开窗函数
+
+## 开窗使用统计
+avg(a.onsale_store_num)over(partition by dm.city_name,dm.purchase_management_group_name,dm.purchase_first_category_name,dm.purchase_third_category_name) as third_category_onsale_store_num
+
+count(1)over(partition by pmg,city_name) prd_stock_cnt
+
+first_value(last_pay_time) over(order by last_pay_time desc) as last_pay_time
+
+lag(coalesce(a5.activity_price,a3.price),14) over (partition by a2.store_id,a3.product_id order by a3.snapshot) as last_14day_sale_price,
+
+lag(t1.arrival_time,1) over (partition by t1.receiver_code order by t1.arrival_time) as previous_arrival_time
+
+lead(aid) over(partition by user_id,pdate order by time_stamp asc) as aid_lead
+
+percentile(cast(purchase_third_category_name_per*10000000 as int),0.7)over(partition by t1.city_name,t1.purchase_management_group_name,t1.purchase_first_category_name)/10000000 as purchase_third_category_name_per_70p
+
+rank() over (partition by a.biz_date, a.city_name, a.area_name order by a.score desc)     as area_rank,
+
+row_number() over(partition by a.store_id, a.batch_id, a.product_id order by a.create_time desc, log_id desc) as rank
+
+sum(a.gross_amt)over(partition by dm.city_name,dm.purchase_second_category_name)/avg(a.onsale_store_num)over(partition by dm.city_name,dm.purchase_second_category_name) as avg_store_gross_amt
+
+sum(gross_amt)over(partition by city_name,purchase_second_category_name)/avg(onsale_store_num)over(partition by city_name,purchase_second_category_name) as avg_store_gross_amt
+
+sum(price)over(partition by t1.city_name,spu_id)*100/sum(weight)over(partition by t1.city_name,spu_id) as spu_avg_price,
+
+sum(product_count) over (partition by city_name, purchase_second_category_name ) as pc_total

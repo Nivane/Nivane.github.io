@@ -1,0 +1,100 @@
+---
+title:  "Doris BE存储结构"
+date:   2021-02-27 00:00:00
+tags:
+    - Doris
+    - OLAP
+---
+
+
+# Doris Tablet
+
+## BE目录结构
+存储根路径：
+
+storage_root_path = /data/doris/data/data
+
+
+```bash
+cd /data/doris/data/data
+// 查找tablet id为67811的目录
+tree -f | grep 67811
+```
+
+```
+|   `-- ./492/67811
+|       `-- ./492/67811/587730488
+|           |-- ./492/67811/587730488/0200000000002f39714b25d3aab31dd603b0eaf176e74e93_0.dat
+|           `-- ./492/67811/587730488/67811.hdr
+./492/${TabletId}/${SchemaHash}/${RowSetId}_${SegmentId}.dat
+```
+
+```sql
+show tablet 67811;
+SHOW PROC '/dbs/67740/67742/partitions/67744/67743/67811';
+/dbs/${DbId}/${TableId}/partitions/${PartitionId}/${IndexId}/${TabletId}
+```
+
+```bash
+cd /data/doris/data/data
+tree -f | grep 67811
+```
+
+```
+SHOW PROC '/dbs/67740/67742/partitions/67744/67743/67811';
+/dbs/${DbId}/${TableId}/partitions/${PartitionId}/${IndexId}/${TabletId}
+
+|   `-- ./492/67811
+|       `-- ./492/67811/587730488
+|           |-- ./492/67811/587730488/0200000000002f39714b25d3aab31dd603b0eaf176e74e93_0.dat
+|           `-- ./492/67811/587730488/67811.hdr
+./492/${TabletId}/${SchemaHash}/${RowSetId}/${SegmentId}.dat
+```
+
+
+
+## BE元数据
+```bash
+// 查看tablet 元数据 
+// http://192.168.41.112:8039/api/meta/header/163365/1641718687
+/data/doris/be/lib/meta_tool --operation=get_meta --root_path=/data/doris/data --tablet_id=163365 --schema_hash=1641718687
+
+
+// 查看segment文件的元数据
+/data/doris/be/lib/meta_tool --operation=show_segment_footer --file=/data/doris/data/data/172/163365/1641718687/0200000000000004784b70783a5f6bc6e610d929adda15b8_0.dat
+```
+
+
+### ordinal index & short key
+
+### data model & data format & data management
+data model: table schema, 分区， 分桶
+
+data format: data and index format -> 
+
+data management: delta, base, cumulative -> compaction policy
+
+
+
+[1] https://doris.apache.org/master/zh-CN/sql-reference/sql-statements/Data%20Manipulation/SHOW%20TABLET.html
+[2] https://doris.apache.org/master/zh-CN/administrator-guide/operation/tablet-meta-tool.html#%E5%B1%95%E7%A4%BA-pb-%E6%A0%BC%E5%BC%8F%E7%9A%84-tabletmeta
+[3] https://doris.apache.org/master/zh-CN/administrator-guide/operation/tablet-meta-tool.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
