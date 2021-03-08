@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="赵立攀的博客">
+    <meta name="keyword"  content="大数据">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        DorisDB vs ClickHouse - 赵立攀的博客
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> INTO THE TORNADO!!! </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar ">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>ZHAO LIPAN</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#DorisDB-vs-ClickHouse"><span class="toc-text">DorisDB vs ClickHouse</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-ClickHouse的缺点"><span class="toc-text">1. ClickHouse的缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-过度依赖大宽表"><span class="toc-text">1.1 过度依赖大宽表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-难以支撑高并发"><span class="toc-text">1.2 难以支撑高并发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-运维复杂度"><span class="toc-text">1.3 运维复杂度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Doris建表的最佳实践"><span class="toc-text">2. Doris建表的最佳实践</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-分区和分桶"><span class="toc-text">2.1 分区和分桶</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-分区分桶与裁剪"><span class="toc-text">2.2 分区分桶与裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-排序键"><span class="toc-text">2.3 排序键</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-整体架构"><span class="toc-text">3. 整体架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-MPP架构"><span class="toc-text">3.1 MPP架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Profile"><span class="toc-text">3.2 Profile</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-计算引擎"><span class="toc-text">4 计算引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-向量化技术"><span class="toc-text">4.1 向量化技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-SIMD-指令"><span class="toc-text">4.2 SIMD 指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-内存优化"><span class="toc-text">4.3 内存优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-Join优化"><span class="toc-text">4.4 Join优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-聚合优化"><span class="toc-text">4.5 聚合优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-存储引擎"><span class="toc-text">5 存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-列式存储"><span class="toc-text">5.1 列式存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-前缀索引"><span class="toc-text">5.2 前缀索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-Bitmap索引"><span class="toc-text">5.3 Bitmap索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-延迟物化"><span class="toc-text">5.4 延迟物化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-向量化过滤"><span class="toc-text">5.5 向量化过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-6-低基数优化字典编码"><span class="toc-text">5.6 低基数优化字典编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-极速MPP"><span class="toc-text">6 极速MPP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-除了快，还有什么"><span class="toc-text">7 除了快，还有什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-使用简单"><span class="toc-text">7.1 使用简单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-运维方便"><span class="toc-text">7.2 运维方便</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-生态完善"><span class="toc-text">7.3 生态完善</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-稳定可靠"><span class="toc-text">7.4 稳定可靠</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-统一分析平台"><span class="toc-text">7.5 统一分析平台</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-DorisDB-Vs-ClickHouse"><span class="toc-text">8 DorisDB Vs. ClickHouse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-参考引用"><span class="toc-text">9 参考引用</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i> INTO THE TORNADO!!! </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        DorisDB vs ClickHouse
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2021-02-21 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Doris" title="Doris">Doris</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#ClickHouse" title="ClickHouse">ClickHouse</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#OLAP" title="OLAP">OLAP</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h1 id="DorisDB-vs-ClickHouse"><a href="#DorisDB-vs-ClickHouse" class="headerlink" title="DorisDB vs ClickHouse"></a>DorisDB vs ClickHouse</h1><h2 id="1-ClickHouse的缺点"><a href="#1-ClickHouse的缺点" class="headerlink" title="1. ClickHouse的缺点"></a>1. ClickHouse的缺点</h2><h3 id="1-1-过度依赖大宽表"><a href="#1-1-过度依赖大宽表" class="headerlink" title="1.1 过度依赖大宽表"></a>1.1 过度依赖大宽表</h3><ul>
+<li>构建和维护大宽表的工作量令人发指</li>
+<li>无法利用星型模型和雪花模型</li>
+</ul>
+<h3 id="1-2-难以支撑高并发"><a href="#1-2-难以支撑高并发" class="headerlink" title="1.2 难以支撑高并发"></a>1.2 难以支撑高并发</h3><ul>
+<li>高并发需要多集群？ 多集群意味着多备份，多运维</li>
+</ul>
+<h3 id="1-3-运维复杂度"><a href="#1-3-运维复杂度" class="headerlink" title="1.3 运维复杂度"></a>1.3 运维复杂度</h3><ul>
+<li>依赖第三方的副本机制</li>
+<li>zk可能成为瓶颈</li>
+</ul>
+<h2 id="2-Doris建表的最佳实践"><a href="#2-Doris建表的最佳实践" class="headerlink" title="2. Doris建表的最佳实践"></a>2. Doris建表的最佳实践</h2><h3 id="2-1-分区和分桶"><a href="#2-1-分区和分桶" class="headerlink" title="2.1 分区和分桶"></a>2.1 分区和分桶</h3><p><img src="/images/dorisdb_vs_clickhouse/partition.png" alt="partition"></p>
+<p>Partition 是数据导⼊和备份恢复的最⼩逻辑单位</p>
+<p>Tablet 是数据复制和均衡的最⼩物理单位</p>
+<h3 id="2-2-分区分桶与裁剪"><a href="#2-2-分区分桶与裁剪" class="headerlink" title="2.2 分区分桶与裁剪"></a>2.2 分区分桶与裁剪</h3><p><img src="/images/dorisdb_vs_clickhouse/table_partition.png" alt="table_partition"><br><img src="/images/dorisdb_vs_clickhouse/partition_tablet.png" alt="partition_tablet"></p>
+<ul>
+<li><p>针对 Doris ⽀持两层的数据划分</p>
+<pre><code>1 第⼀层是 Partition 分区，⽀持 Range 的划分⽅式
+
+2 第⼆层是 Distribution 分桶，⽀持 Hash 的划分⽅式
+</code></pre></li>
+<li><p>Partition 类似分表，是对⼀个表按照分区键进⾏切分，可以利⽤分区裁剪减少数据访问量，也可以根据<br>数据的<strong>冷热程度</strong>把数据划分到不同的介质上</p>
+</li>
+<li><p>Distribution是对数据在不同BE上的数据分布⽅式，按照分桶键hash以后均匀分布在BE上，注意尽量选择分桶键让数据均衡，不要出现bucket数据倾斜的情况</p>
+</li>
+<li><p>Bucket数量的需要适中，如果希望充分发挥性能可以设置为BE数量<em> CPU core数量 或者 BE数量</em> CPU core数量 / 2，最好tablet控制在100MB - 1GB之间，tablet太少并⾏度可能不够，太多可能元数据过多，底层scan并发太多性能下降。</p>
+</li>
+</ul>
+<h3 id="2-3-排序键"><a href="#2-3-排序键" class="headerlink" title="2.3 排序键"></a>2.3 排序键</h3><p><img src="/images/dorisdb_vs_clickhouse/short_key.png" alt="short_key"></p>
+<ul>
+<li><p>排序键可以使⽤前缀索引（short key）和ZoneMap来进⾏⾼效的过滤，同时也能利⽤数据局部性来加速group by等聚合操作</p>
+</li>
+<li><p>shortkey 的列只能是排序键的前缀, 列数不超过3, 字节数不超过36字节, 不包含FLOAT/DOUBLE类型的列,VARCHAR类型列只能出现⼀次, 并且是末尾位置</p>
+</li>
+<li><p>索引粒度1024 类似Clickhouse的index_granularity</p>
+</li>
+<li><p>Zonemap 通过min max来快速过滤page中的数据</p>
+</li>
+</ul>
+<h2 id="3-整体架构"><a href="#3-整体架构" class="headerlink" title="3. 整体架构"></a>3. 整体架构</h2><p><img src="/images/dorisdb_vs_clickhouse/architecture.png" alt="architecture"></p>
+<h3 id="3-1-MPP架构"><a href="#3-1-MPP架构" class="headerlink" title="3.1 MPP架构"></a>3.1 MPP架构</h3><p><img src="/images/dorisdb_vs_clickhouse/mpp.png" alt="mpp"><br><img src="/images/dorisdb_vs_clickhouse/mpp2.png" alt="mpp2"></p>
+<h3 id="3-2-Profile"><a href="#3-2-Profile" class="headerlink" title="3.2 Profile"></a>3.2 Profile</h3><p><img src="/images/dorisdb_vs_clickhouse/profile.png" alt="profile"><br>图形化的Profile 可以看到MPP的执⾏过程，⽅便的定位性能瓶颈和数据倾斜</p>
+<p><strong>这个功能目前开源apache doris没有，只有dorisdb有</strong></p>
+<h2 id="4-计算引擎"><a href="#4-计算引擎" class="headerlink" title="4 计算引擎"></a>4 计算引擎</h2><h3 id="4-1-向量化技术"><a href="#4-1-向量化技术" class="headerlink" title="4.1 向量化技术"></a>4.1 向量化技术</h3><p><img src="/images/dorisdb_vs_clickhouse/vectorization1.png" alt="vectorization1"><br><img src="/images/dorisdb_vs_clickhouse/vectorization2.png" alt="vectorization2"></p>
+<ul>
+<li><p>向量化技术<br>内存结构按照列组织 引⼊Column结构，按列load数据，按列进⾏表达式计算和节点计算</p>
+</li>
+<li><p>优势<br>CPU 预取 / 分⽀预测友好 / Cache 友好 / ⽅便使⽤SIMD指令集</p>
+</li>
+</ul>
+<h3 id="4-2-SIMD-指令"><a href="#4-2-SIMD-指令" class="headerlink" title="4.2 SIMD 指令"></a>4.2 SIMD 指令</h3><p><img src="/images/dorisdb_vs_clickhouse/SIMD.png" alt="SIMD"></p>
+<h3 id="4-3-内存优化"><a href="#4-3-内存优化" class="headerlink" title="4.3 内存优化"></a>4.3 内存优化</h3><p><img src="/images/dorisdb_vs_clickhouse/main_memory.png" alt="main_memory"></p>
+<h3 id="4-4-Join优化"><a href="#4-4-Join优化" class="headerlink" title="4.4 Join优化"></a>4.4 Join优化</h3><p><img src="/images/dorisdb_vs_clickhouse/join1.png" alt="join1"><br><img src="/images/dorisdb_vs_clickhouse/join2.png" alt="join2"></p>
+<h3 id="4-5-聚合优化"><a href="#4-5-聚合优化" class="headerlink" title="4.5 聚合优化"></a>4.5 聚合优化</h3><p>⾃适应两层聚合<br><img src="/images/dorisdb_vs_clickhouse/agg.png" alt="agg"></p>
+<ul>
+<li><p>分布式两阶段聚合</p>
+</li>
+<li><p>Local Agg ：本地部分聚合</p>
+</li>
+<li><p>Final Agg ： 全量聚合</p>
+</li>
+<li><p>Steamming Vs TwoLevel Vs Suflfle By Column</p>
+</li>
+<li><p>运⾏时⾃适应</p>
+</li>
+</ul>
+<h2 id="5-存储引擎"><a href="#5-存储引擎" class="headerlink" title="5 存储引擎"></a>5 存储引擎</h2><h3 id="5-1-列式存储"><a href="#5-1-列式存储" class="headerlink" title="5.1 列式存储"></a>5.1 列式存储</h3><p><img src="/images/dorisdb_vs_clickhouse/column.png" alt="column"><br><img src="/images/dorisdb_vs_clickhouse/column2.png" alt="column2"></p>
+<h3 id="5-2-前缀索引"><a href="#5-2-前缀索引" class="headerlink" title="5.2 前缀索引"></a>5.2 前缀索引</h3><p><img src="/images/dorisdb_vs_clickhouse/short.png" alt="short"></p>
+<h3 id="5-3-Bitmap索引"><a href="#5-3-Bitmap索引" class="headerlink" title="5.3 Bitmap索引"></a>5.3 Bitmap索引</h3><p><img src="/images/dorisdb_vs_clickhouse/bitmap.png" alt="bitmap"></p>
+<h3 id="5-4-延迟物化"><a href="#5-4-延迟物化" class="headerlink" title="5.4 延迟物化"></a>5.4 延迟物化</h3><p><img src="/images/dorisdb_vs_clickhouse/late_materialization.png" alt="late_materialization"></p>
+<h3 id="5-5-向量化过滤"><a href="#5-5-向量化过滤" class="headerlink" title="5.5 向量化过滤"></a>5.5 向量化过滤</h3><p><img src="/images/dorisdb_vs_clickhouse/vectorization3.png" alt="vectorization3"></p>
+<h3 id="5-6-低基数优化字典编码"><a href="#5-6-低基数优化字典编码" class="headerlink" title="5.6 低基数优化字典编码"></a>5.6 低基数优化字典编码</h3><p><img src="/images/dorisdb_vs_clickhouse/low_cardinality.png" alt="low_cardinality"></p>
+<h2 id="6-极速MPP"><a href="#6-极速MPP" class="headerlink" title="6 极速MPP"></a>6 极速MPP</h2><p><img src="/images/dorisdb_vs_clickhouse/the_mpp.png" alt="the_mpp"></p>
+<h2 id="7-除了快，还有什么"><a href="#7-除了快，还有什么" class="headerlink" title="7 除了快，还有什么"></a>7 除了快，还有什么</h2><h3 id="7-1-使用简单"><a href="#7-1-使用简单" class="headerlink" title="7.1 使用简单"></a>7.1 使用简单</h3><ul>
+<li>Mysql协议兼容<ul>
+<li>标准SQL，兼容各类主流BI，迁移成本极低</li>
+<li>函数⽀持丰富，包括各类时间、字符串、GIS、聚合函数以及窗⼝函数</li>
+</ul>
+</li>
+<li>灵活的数据模型<ul>
+<li>⾼效⽀持星型/雪花模型，避免打平成⼤宽表，更加灵活的适应实时更新和维度变化</li>
+<li>Duplicate/Unique/Aggregate三种模式适配各类场景</li>
+</ul>
+</li>
+<li>开箱即⽤的⽤户体验<ul>
+<li>⾃适应应对各种case，⽆须额外的复杂优化⼿段</li>
+<li>各种Load⼿段可以降低ETL⼯作量，通过配置快速导⼊数据</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-2-运维方便"><a href="#7-2-运维方便" class="headerlink" title="7.2 运维方便"></a>7.2 运维方便</h3><ul>
+<li>⾼可⽤<ul>
+<li>FE采取类Paxos⼀致性算法，⽆单点瓶颈</li>
+<li>BE多副本可以独⽴调节，数据按⾃身特性灵活拆分</li>
+</ul>
+</li>
+<li>⾼度⾃治<ul>
+<li>⽆外部依赖，避免繁杂的中间件维护</li>
+<li>副本⾃修复，数据⾃均衡，⼀键扩容，缩容</li>
+</ul>
+</li>
+<li>可视化管理⼯具<ul>
+<li>全局配置，⼀键部署，滚动升级</li>
+<li>完备的监控告警集成保障系统稳定可观测</li>
+<li>灵活的扩容缩容⽅便集群容量规划</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-3-生态完善"><a href="#7-3-生态完善" class="headerlink" title="7.3 生态完善"></a>7.3 生态完善</h3><p><img src="/images/dorisdb_vs_clickhouse/sys.png" alt="sys"></p>
+<h3 id="7-4-稳定可靠"><a href="#7-4-稳定可靠" class="headerlink" title="7.4 稳定可靠"></a>7.4 稳定可靠</h3><ul>
+<li>完善的测试<ul>
+<li>完成SSB TPCH TPCDS NYC-TAXI 等测试集功能完备</li>
+<li>SQLancer 每天构建数千万条随机SQL验证</li>
+<li>引⼊SQLite/Spark等外部DB 200万标准测试集通过</li>
+</ul>
+</li>
+<li>⾼可⽤架构<ul>
+<li>没有单点，FE ⾼可⽤，BE多副本</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-5-统一分析平台"><a href="#7-5-统一分析平台" class="headerlink" title="7.5 统一分析平台"></a>7.5 统一分析平台</h3><p><img src="/images/dorisdb_vs_clickhouse/general.png" alt="general"></p>
+<h2 id="8-DorisDB-Vs-ClickHouse"><a href="#8-DorisDB-Vs-ClickHouse" class="headerlink" title="8 DorisDB Vs. ClickHouse"></a>8 DorisDB Vs. ClickHouse</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>ClickHouse</th>
+<th>DorisDB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>标准SQL语⾔的⽀持</strong></td>
+<td>不⽀持标准的SQL语⾔，⽆法直接对接主流的BI系统。</td>
+<td>⽀持标准的SQL语⾔，兼容MySQL协议，可以直接对接主流的BI系统。</td>
+</tr>
+<tr>
+<td><strong>分布式Join</strong></td>
+<td>⼏乎不⽀持分布式Join，在分析模型上仅⽀持⼤宽表模式。</td>
+<td>⽀持各种主流分布式Join，不仅⽀持⼤宽表模型，还⽀持星型模型和雪花模型。</td>
+</tr>
+<tr>
+<td><strong>⾼并发查询</strong></td>
+<td>传统MMP数据分布⽅式，⼩查询会极⼤消耗集群的资源，⽆法实现⾼并发查询，并且⽆法通过扩容的⽅式来提⾼并发能⼒。</td>
+<td>现代化MPP数据分布⽅式，数据按照分⽚的⽅式保存，⼩查询只需要⽤到部分机器资源，能极⼤地提⾼并发查询量。</td>
+</tr>
+<tr>
+<td><strong>MPP架构</strong></td>
+<td>Scatter-Gather 模式，聚合操作依赖单点完成，操作数据量⼤时存在明显的性能瓶颈。</td>
+<td>现代化MPP架构，可以实现多层聚合，能够执⾏复杂的SQL查询，⼤表Join，⾼基数聚合查询等。</td>
+</tr>
+<tr>
+<td><strong>精确去重</strong></td>
+<td>对⾼基数列进⾏精确去重操作（如计算APP的DAU）时，受限于单点聚合的处理⽅式，性能瓶颈明显。</td>
+<td>现代化MPP架构，可以实现多层聚合，能有效利⽤多机资源，保证查询性能。</td>
+</tr>
+<tr>
+<td><strong>Exactly once语义</strong></td>
+<td>数据导⼊⽆事务保证，⽆法保证数据写⼊的“不丢不重”，订单类场景⽆法使⽤。</td>
+<td>数据导⼊有事务保证，可以很容易地实现Exactly once语义，数据导⼊“不丢不重”。 </td>
+</tr>
+<tr>
+<td><strong>集群扩容</strong></td>
+<td>传统MPP数据分布⽅式，数据扩容时需要进⾏数据重分布，需要⼈⼯操作，⼯作量巨⼤，影响线上服务。</td>
+<td>现代化MPP数据分布⽅式，扩容时只需要迁移部分数据分⽚⾛即可，系统⾃动完成，不影响线上服务。</td>
+</tr>
+<tr>
+<td><strong>运维</strong></td>
+<td>分布式⽅案依赖Zookeeper，在集群扩⼤时，Zookeeper会变成性能瓶颈，额外运维和维护成本⾼。</td>
+<td>不依赖任何外部系统，整个系统只有两种进程，⾃动故障恢复，极简运维。</td>
+</tr>
+<tr>
+<td><strong>社区⽣态</strong></td>
+<td>整个开源社区被俄罗斯公司把持，在中国没有商业化公司⽀持，使⽤上规模后技术⽀持⽆法保证。</td>
+<td>开源社区的核⼼研发⼈员都是中国⼈，在国内有商业化公司⽀持，服务更加本地化，技术⽀持⽆障碍。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-参考引用"><a href="#9-参考引用" class="headerlink" title="9 参考引用"></a>9 参考引用</h2><p>[1] <a href="https://zhuanlan.zhihu.com/p/344031483" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/344031483</a></p>
+<p>[2] DorisDB 技术分享会PPT</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+<!--      -->
+    <p>
+<!--        <span id="busuanzi_container_site_pv">-->
+<!--            <span id="busuanzi_value_site_pv"></span>PV-->
+<!--        </span>-->
+<!--        <span id="busuanzi_container_site_uv">-->
+<!--            <span id="busuanzi_value_site_uv"></span>UV-->
+<!--        </span>-->
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

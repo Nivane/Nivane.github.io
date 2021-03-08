@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="赵立攀的博客">
+    <meta name="keyword"  content="大数据">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join - 赵立攀的博客
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> INTO THE TORNADO!!! </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar ">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>ZHAO LIPAN</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark-SQL-Broadcast-Join-Shuffle-Hash-Join-Sort-Merge-Join"><span class="toc-text">Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-使用场景"><span class="toc-text">1. 使用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-hash-join"><span class="toc-text">2. hash join</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-分布式中，HASH-JOIN的两个变种"><span class="toc-text">2.1 分布式中，HASH JOIN的两个变种</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Broadcast-Hash-Join-BHJ"><span class="toc-text">3. Broadcast Hash Join (BHJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Shuffle-Hash-Join-SHJ"><span class="toc-text">4. Shuffle Hash Join (SHJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Sort-Merge-Join-SMJ"><span class="toc-text">5. Sort Merge Join (SMJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-参考引用"><span class="toc-text">6. 参考引用</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i> INTO THE TORNADO!!! </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2021-02-23 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Spark" title="Spark">Spark</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#Join" title="Join">Join</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h1 id="Spark-SQL-Broadcast-Join-Shuffle-Hash-Join-Sort-Merge-Join"><a href="#Spark-SQL-Broadcast-Join-Shuffle-Hash-Join-Sort-Merge-Join" class="headerlink" title="Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join"></a>Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join</h1><h2 id="1-使用场景"><a href="#1-使用场景" class="headerlink" title="1. 使用场景"></a>1. 使用场景</h2><ol>
+<li><p>Broadcast Hash Join</p>
+<p> 大表和超小表</p>
+<p> spark.sql.autoBroadcastJoinThreshold </p>
+<p> default 10M</p>
+</li>
+<li><p>Shuffle Hash Join</p>
+<p> 大表和普通小表</p>
+</li>
+<li><p>Sort Merge Join</p>
+<p> 大表和大表</p>
+<p> spark.sql.join.preferSortMergeJoin</p>
+</li>
+</ol>
+<p><strong>COST(Broadcast Hash Join) &lt; COST(Shuffle Hash Join) &lt; COST(Sort Merge Join)</strong></p>
+<h2 id="2-hash-join"><a href="#2-hash-join" class="headerlink" title="2. hash join"></a>2. hash join</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> a.* <span class="keyword">from</span> a <span class="keyword">join</span> b <span class="keyword">on</span> a.id = b.id;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>小表作为Build Table，大表作为Probe Table。Build Table根据Join Key构建Hash Table，Probe Table根据Join Key进行探测，探测成功则执行join操作。</li>
+<li>构建的Hash Table最好能全部加载在内存，效率最高；内存的限制决定了hash join算法只适合至少一个小表的join场景，对于两个大表的join场景并不适用。</li>
+</ol>
+<h3 id="2-1-分布式中，HASH-JOIN的两个变种"><a href="#2-1-分布式中，HASH-JOIN的两个变种" class="headerlink" title="2.1 分布式中，HASH JOIN的两个变种"></a>2.1 分布式中，HASH JOIN的两个变种</h3><p>Hash Join适用于大表和小表Join，使用哪种变种需要参考小表有多大</p>
+<ol>
+<li><p>Broadcast Hash Join<br>超小表使用广播<br>Spark SQL也可以根据内存资源、带宽资源适量将参数spark.sql.autoBroadcastJoinThreshold调大，让更多join执行broadcast hash join。</p>
+</li>
+<li><p>Shuffle Hash Join<br>一般小表使用shuffle hash join</p>
+</li>
+</ol>
+<h2 id="3-Broadcast-Hash-Join-BHJ"><a href="#3-Broadcast-Hash-Join-BHJ" class="headerlink" title="3. Broadcast Hash Join (BHJ)"></a>3. Broadcast Hash Join (BHJ)</h2><p>众所周知，在数据库通用模型（例如星型模型或雪花模型）中，表通常分为两种类型：事实表和维度表。维度表（小型表）通常是指固定的，可变性较小的表，例如联系人，项目等，一般数据是有限的。</p>
+<p>事实表通常记录流水，如订单销售明细等，通常随着时间的增长而不断扩大，意味着大表。</p>
+<p>当对维度表和事实表进行Join操作时，为了避免shuffle，我们可以将维度表的所有数据分发到每个执行节点供事实表使用。执行程序存储维度表的所有数据，在一定程度上牺牲了空间，替代很费时的shuffle操作，这在SparkSQL中称为Broadcast Join，如下所示：</p>
+<p><img src="/images/3_common_join_spark_sql/bhj.png" alt="bhj"></p>
+<h2 id="4-Shuffle-Hash-Join-SHJ"><a href="#4-Shuffle-Hash-Join-SHJ" class="headerlink" title="4. Shuffle Hash Join (SHJ)"></a>4. Shuffle Hash Join (SHJ)</h2><p><img src="/images/3_common_join_spark_sql/shj.png" alt="shj"><br>1.对两个表分别按照join key重新分区，即shuffle，目的是将具有相同join key的记录分配给相应的分区</p>
+<p>2.将数据中的对应分区join，这里首先将小表分区构造为hash table，然后根据记录在join key中的大表中的键值取出来进行匹配。</p>
+<h2 id="5-Sort-Merge-Join-SMJ"><a href="#5-Sort-Merge-Join-SMJ" class="headerlink" title="5. Sort Merge Join (SMJ)"></a>5. Sort Merge Join (SMJ)</h2><p>spark.sql.join.preferSortMergeJoin</p>
+<p>SMJ适用于两张大表的join，两张大表join本身性能很重。</p>
+<p><img src="/images/3_common_join_spark_sql/smj.png" alt="smj"></p>
+<ul>
+<li>shuffle</li>
+</ul>
+<p>两张大表都根据key进行重新分区，数据分布到各个节点</p>
+<ul>
+<li>sort</li>
+</ul>
+<p>对每个分区节点的两个表的数据分别进行排序</p>
+<ul>
+<li>merge   </li>
+</ul>
+<p>对排序的数据进行join操作。遍历两个有序表，碰到相同Join key就merge输出，否则从数据小的一遍继续遍历。</p>
+<h2 id="6-参考引用"><a href="#6-参考引用" class="headerlink" title="6. 参考引用"></a>6. 参考引用</h2><p>[1] <a href="https://sq.163yun.com/blog/article/155507707635548160" target="_blank" rel="noopener">https://sq.163yun.com/blog/article/155507707635548160</a></p>
+<p>[2] <a href="https://www.linkedin.com/pulse/spark-sql-3-common-joins-explained-ram-ghadiyaram" target="_blank" rel="noopener">https://www.linkedin.com/pulse/spark-sql-3-common-joins-explained-ram-ghadiyaram</a></p>
+<p>[3] <a href="https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-SparkStrategy-JoinSelection.html" target="_blank" rel="noopener">https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-SparkStrategy-JoinSelection.html</a></p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+<!--      -->
+    <p>
+<!--        <span id="busuanzi_container_site_pv">-->
+<!--            <span id="busuanzi_value_site_pv"></span>PV-->
+<!--        </span>-->
+<!--        <span id="busuanzi_container_site_uv">-->
+<!--            <span id="busuanzi_value_site_uv"></span>UV-->
+<!--        </span>-->
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

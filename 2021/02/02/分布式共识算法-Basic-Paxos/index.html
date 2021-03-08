@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="赵立攀的博客">
+    <meta name="keyword"  content="大数据">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        分布式共识算法Basic Paxos - 赵立攀的博客
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> INTO THE TORNADO!!! </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar ">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>ZHAO LIPAN</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Basic-Paxos"><span class="toc-text">Basic Paxos</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Paxos"><span class="toc-text">什么是Paxos</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Basic-Paxos-1"><span class="toc-text">Basic Paxos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#角色"><span class="toc-text">角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#提案"><span class="toc-text">提案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Quorum"><span class="toc-text">Quorum</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二阶段提交"><span class="toc-text">二阶段提交</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-Paxos几个原则"><span class="toc-text">Basic Paxos几个原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二阶段提交场景"><span class="toc-text">二阶段提交场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#领导者选举"><span class="toc-text">领导者选举</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i> INTO THE TORNADO!!! </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        分布式共识算法Basic Paxos
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2021-02-02 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Doris" title="Doris">Doris</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h1 id="Basic-Paxos"><a href="#Basic-Paxos" class="headerlink" title="Basic Paxos"></a>Basic Paxos</h1><h2 id="什么是Paxos"><a href="#什么是Paxos" class="headerlink" title="什么是Paxos"></a>什么是Paxos</h2><ul>
+<li><p>Paxos是解决分布式共识问题的一系列算法，由 <a href="https://lamport.azurewebsites.net/" target="_blank" rel="noopener">Leslie Lamport</a> 提出，大神的几篇关于Paxos的论文：</p>
+<p>  <a href="https://lamport.azurewebsites.net/pubs/lamport-paxos.pdf" target="_blank" rel="noopener">1998-The Part-Time Parliament</a></p>
+<p>  <a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf" target="_blank" rel="noopener">2001-Paxos Made Simple</a></p>
+<p>  <a href="http://lamport.azurewebsites.net/pubs/web-dsn-submission.pdf" target="_blank" rel="noopener">2004-Cheap Paxos</a></p>
+<p>  <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2005-112.pdf" target="_blank" rel="noopener">2005-Fast Paxos</a></p>
+</li>
+<li><p>共识(Consensus)是多个节点就某个提案(n, v)达成统一结果的过程。因为参与者本身会失败，或者参与者之间的通信会失败，比如网络分区，消息延迟，节点故障，所以这是个棘手的问题。</p>
+</li>
+</ul>
+<h2 id="Basic-Paxos-1"><a href="#Basic-Paxos-1" class="headerlink" title="Basic Paxos"></a>Basic Paxos</h2><ul>
+<li>就单个值达成共识，如果大多数节点就单个值达成共识，值就不会再变了。不涉及连续多个值的共识协商。</li>
+</ul>
+<h3 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h3><ul>
+<li>客户端(Client)：向分布式系统发送请求，并接收回复。</li>
+<li>提议者(Proposer)：接受客户端的一个请求并支持该请求，之后尝试让其他接受者支持相同的请求。<br>  接入和协调功能，收到客户端请求后，发起 <em>二阶段提交</em> ，进行共识协商</li>
+<li>接受者(Acceptor)：对提案进行投票，存储接受的提案。</li>
+<li>学习者(Learner)：不参与投票，在接受者达成共识之后，存储保存。<br>一个节点可以同时扮演多个角色，不影响算法正确性，一个节点扮演多个角色可以降低延迟，减少节点间消息发送</li>
+</ul>
+<h3 id="提案"><a href="#提案" class="headerlink" title="提案"></a>提案</h3><ul>
+<li>(n, v) n为提案编号，v为提案值</li>
+<li>提案编号特性：原子，递增，持久存储</li>
+</ul>
+<h3 id="Quorum"><a href="#Quorum" class="headerlink" title="Quorum"></a>Quorum</h3><p>本义指的是出席议会议事的最低议员数量。<br>在Paxos中，接受者组成Quorums。发送给某一个接受者的消息必须发送给Quorum中的所有其他接受者。</p>
+<h2 id="二阶段提交"><a href="#二阶段提交" class="headerlink" title="二阶段提交"></a>二阶段提交</h2><ul>
+<li><p>Phase 1：准备阶段</p>
+<p>  a. Prepare: 创建一个提案(n, v)，发起二阶段提交, n必须是递增的。将Prepare message(只包含提案编号n，不需要包含v)发给a quorum of acceptors</p>
+<p>  b. Promise: 接受者比较n和自己已经响应的提案的最大提案编号：</p>
+<pre><code>1. 如果小于等于已经响应的最大提案编号，则忽略，可以不响应，也可以响应以防止提议者反复提交提案编号为n的Prepare message。
+
+2. 如果大于已经响应的最大提案编号，接受者返回给提议者Promise，并忽略所有提案编号小于n的提案；如果接受者之前接受了某个提案(m, w)，则接受者必须将这个提案信息返回给提议者。
+</code></pre></li>
+<li><p>Phase 2：接受阶段</p>
+<p>  a. Accept: </p>
+<pre><code>1. 如果接受者已经达成共识(m, w)，则Accept message为(n, w)
+
+2. 如果提议者接收到a quorum of acceptors中大多数节点的Promises，会设置节点值为提案值v，提议者发送Accept message(n, v)
+</code></pre><p>  b. Accepted: </p>
+<pre><code>1. 接受者之前尚未达成共识，Accept message(n, v)
+
+2. 接受者之前已达成共识(m, w), Accept message(n, w)
+</code></pre></li>
+</ul>
+<h3 id="Basic-Paxos几个原则"><a href="#Basic-Paxos几个原则" class="headerlink" title="Basic Paxos几个原则"></a>Basic Paxos几个原则</h3><ul>
+<li><p>如果准备请求的提案编号，小于等于接受者已经响应的准备请求的提案编号，则接受者不会响应这个准备请求</p>
+</li>
+<li><p>如果接受请求的提案编号，小于接受者已经响应的准备请求的提案编号，则接受者不会通过这个提案</p>
+</li>
+<li><p>如果接受者已经通过提案，那么接受者会在准备请求的响应中，包含已通过的最大编号的提案信息</p>
+</li>
+<li><p>如果大多数接受者对某个提案达成共识，那么提案值就不会再变了，而提案编号会因为少数节点(尚未通过任何提案)接收到新的准备请求而使用递增的更大的提案编号。</p>
+</li>
+</ul>
+<h3 id="二阶段提交场景"><a href="#二阶段提交场景" class="headerlink" title="二阶段提交场景"></a>二阶段提交场景</h3><p>一个Quorum: A,B,C</p>
+<ul>
+<li><p>场景1：节点A通过了准备请求(1,v1)，但还没有接受提案(1,v1)，如果此时节点A接受到新的准备请求(2, v2)，因为新的准备请求的提案编号2大于之前的提案编号1，则节点A保证不再响提案编号小于等于2的准备请求，也不会通过提案编号小于等于2的提案。</p>
+</li>
+<li><p>场景2：节点A,B已经通过了提案(2, v1),节点C未通过提案，此时客户端发起请求设置(3, v2), 因为AB已经通过提案(大多数节点)，所以提案值不会变动，而提案编号使用最大的3，则最终节点值(3, v1)</p>
+</li>
+</ul>
+<h2 id="领导者选举"><a href="#领导者选举" class="headerlink" title="领导者选举"></a>领导者选举</h2><ul>
+<li>可以通过Basic Paxos算法实现领导者选举，也就是多个节点就提案达成共识的过程。在Chubby中，领导者选举就是通过Basic Paxos实现的。</li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+<!--      -->
+    <p>
+<!--        <span id="busuanzi_container_site_pv">-->
+<!--            <span id="busuanzi_value_site_pv"></span>PV-->
+<!--        </span>-->
+<!--        <span id="busuanzi_container_site_uv">-->
+<!--            <span id="busuanzi_value_site_uv"></span>UV-->
+<!--        </span>-->
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

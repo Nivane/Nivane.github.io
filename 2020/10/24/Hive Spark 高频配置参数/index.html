@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="赵立攀的博客">
+    <meta name="keyword"  content="大数据">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        Hive Spark Impala 高频参数配置 - 赵立攀的博客
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> INTO THE TORNADO!!! </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar ">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>ZHAO LIPAN</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Hive-Spark-Impala-高频参数配置"><span class="toc-text">Hive Spark Impala 高频参数配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hive"><span class="toc-text">Hive</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spark"><span class="toc-text">Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Impala"><span class="toc-text">Impala</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MapReduce"><span class="toc-text">MapReduce</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HDFS"><span class="toc-text">HDFS</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i> INTO THE TORNADO!!! </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        Hive Spark Impala 高频参数配置
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2020-10-24 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Spark" title="Spark">Spark</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#Hive" title="Hive">Hive</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#Impala" title="Impala">Impala</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h1 id="Hive-Spark-Impala-高频参数配置"><a href="#Hive-Spark-Impala-高频参数配置" class="headerlink" title="Hive Spark Impala 高频参数配置"></a>Hive Spark Impala 高频参数配置</h1><h2 id="Hive"><a href="#Hive" class="headerlink" title="Hive"></a>Hive</h2><p><a href="https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties</a></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>hive.exec.dynamic.partition</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.dynamic.partition.mode</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.max.dynamic.partitions</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.max.dynamic.partitions.pernode</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.execution.engine</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.max.created.files</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.parallel</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.mapred.mode</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.merge.mapredfiles</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.optimize.sort.dynamic.partition</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.auto.convert.join</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.auto.convert.join.noconditionaltask</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.compute.query.USING.stats</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.dynamic.partition</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.dynamic.partition.mode</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.max.created.files</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.max.dynamic.partitions</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.parallel.thread.number</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.exec.reducers.bytes.per.reducer</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.fetch.task.conversion</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.fetch.task.conversion.threshold</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.groupby.skewindata</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.input.format</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.limit.pushdown.memory.usage</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.map.aggr</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.map.aggr.hash.percentmemory</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.merge.mapfiles</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.merge.mapredfiles</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.merge.size.per.task</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.merge.smallfiles.avgsize</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.merge.sparkfiles</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.optimize.bucketmapjoin.sortedmerge</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.optimize.index.filter</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.optimize.ppd</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.optimize.reducededuplication</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.optimize.reducededuplication.min.reducer</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.optimize.skewjoin</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.smbjoin.cache.rows</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.stats.autogather</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>hive.stats.fetch.column.stats</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Spark"><a href="#Spark" class="headerlink" title="Spark"></a>Spark</h2><p><a href="https://spark.apache.org/docs/latest/configuration.html" target="_blank" rel="noopener">https://spark.apache.org/docs/latest/configuration.html</a></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>spark.master</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.serializer</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.sql.autoBroadcastJoinThreshold</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.default.parallelism</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.executor.memory</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.sql.adaptive.enabled</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.sql.adaptive.shuffle.targetPostShuffleInputSize</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.sql.crossJoin.enabled</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.sql.shuffle.partitions</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.driver.memory</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.dynamicAllocation.enabled</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.dynamicAllocation.maxExecutors</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.dynamicAllocation.minExecutors</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.executor.cores</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.executor.memoryOverhead</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.kryoserializer.buffer</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.kryoserializer.buffer.max</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.sql.shuffle.partitions</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>spark.yarn.executor.memoryOverhead</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Impala"><a href="#Impala" class="headerlink" title="Impala"></a>Impala</h2><p><a href="https://impala.apache.org/docs/build/html/topics/impala_query_options.html" target="_blank" rel="noopener">https://impala.apache.org/docs/build/html/topics/impala_query_options.html</a></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>sync_ddl</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mem_limit</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="MapReduce"><a href="#MapReduce" class="headerlink" title="MapReduce"></a>MapReduce</h2><p><a href="https://hadoop.apache.org/docs/r3.0.0/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml" target="_blank" rel="noopener">https://hadoop.apache.org/docs/r3.0.0/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml</a></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>mapreduce.map.java.opts</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapreduce.map.memory.mb</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapreduce.reduce.memory.mb</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapred.min.split.size</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapred.min.split.size.per.node</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapred.min.split.size.per.rack</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapreduce.fileoutputcommitter.marksuccessfuljobs</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapreduce.job.reduce.slowstart.completedmaps</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapred.job.name</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapred.max.split.size</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>mapreduce.reduce.java.opts</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="HDFS"><a href="#HDFS" class="headerlink" title="HDFS"></a>HDFS</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>dfs.datanode.max.xcievers</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+<!--      -->
+    <p>
+<!--        <span id="busuanzi_container_site_pv">-->
+<!--            <span id="busuanzi_value_site_pv"></span>PV-->
+<!--        </span>-->
+<!--        <span id="busuanzi_container_site_uv">-->
+<!--            <span id="busuanzi_value_site_uv"></span>UV-->
+<!--        </span>-->
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

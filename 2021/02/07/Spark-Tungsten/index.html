@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="赵立攀的博客">
+    <meta name="keyword"  content="大数据">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        Spark Tungsten：优化Spark核心执行引擎 - 赵立攀的博客
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> INTO THE TORNADO!!! </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar ">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>ZHAO LIPAN</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark-Tungsten-钨"><span class="toc-text">Spark Tungsten(钨)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-什么是Tungsten"><span class="toc-text">1. 什么是Tungsten</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-为什么CPU成为了瓶颈"><span class="toc-text">1.1 为什么CPU成为了瓶颈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Tungsten包含了哪些优化"><span class="toc-text">1.2 Tungsten包含了哪些优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-内存管理和二进制处理（binary-processing）"><span class="toc-text">2. 内存管理和二进制处理（binary processing）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Java对象占据了太多内存"><span class="toc-text">2.1 Java对象占据了太多内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Java垃圾回收效率可能会很差"><span class="toc-text">2.2 Java垃圾回收效率可能会很差</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-通过显式管理内存和二进制数据（而不是java对象模型）来解决"><span class="toc-text">2.3 通过显式管理内存和二进制数据（而不是java对象模型）来解决</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Cache-aware-Computation"><span class="toc-text">3. Cache-aware Computation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-什么是in-memory-Computation"><span class="toc-text">3.1 什么是in-memory Computation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-什么是cache-aware-Computation"><span class="toc-text">3.2 什么是cache-aware Computation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-举个栗子"><span class="toc-text">3.3 举个栗子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-代码生成"><span class="toc-text">4. 代码生成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-vectorized-expression"><span class="toc-text">4.1 vectorized expression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-除了expression-evaluation的代码生成-还有其他领域的代码生成应用"><span class="toc-text">4.2 除了expression evaluation的代码生成, 还有其他领域的代码生成应用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Tungsten和Tungsten之外"><span class="toc-text">5 Tungsten和Tungsten之外</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Spark应用Tungsten"><span class="toc-text">5.1 Spark应用Tungsten</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Tungsten之外的待研究和优化点"><span class="toc-text">5.2 Tungsten之外的待研究和优化点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考引用"><span class="toc-text">参考引用</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i> INTO THE TORNADO!!! </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        Spark Tungsten：优化Spark核心执行引擎
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2021-02-07 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Spark" title="Spark">Spark</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h1 id="Spark-Tungsten-钨"><a href="#Spark-Tungsten-钨" class="headerlink" title="Spark Tungsten(钨)"></a>Spark Tungsten(钨)</h1><h2 id="1-什么是Tungsten"><a href="#1-什么是Tungsten" class="headerlink" title="1. 什么是Tungsten"></a>1. 什么是Tungsten</h2><p>Tungsten是自Spark项目创建以来对Spark执行引擎的最大修改，从本质上改善了Spark应用的内存和CPU执行效率，将性能向到现代硬件的极限推进。</p>
+<p>事实上，Spark工作负载越来越受到CPU和内存的限制，而不是磁盘IO和网络通信，引发了大家对CPU执行效率的关注，最近的大数据工作负载性能研究表明了这一个趋势。</p>
+<h3 id="1-1-为什么CPU成为了瓶颈"><a href="#1-1-为什么CPU成为了瓶颈" class="headerlink" title="1.1 为什么CPU成为了瓶颈"></a>1.1 为什么CPU成为了瓶颈</h3><ul>
+<li>硬件角度：现在的硬件配置提供了越来越大的总IO带宽，比如10Gbps的网络连接, 高带宽的SSD或者条带HDD阵列用于存储。</li>
+<li>软件角度：spark optimizer现在通过修剪不必要的输入数据，可以避免大量磁盘IO的工作。在spark shuffle子系统中，序列化和hashing(CPU bound) 成了关键瓶颈，而不是底层硬件的网络吞吐量。</li>
+</ul>
+<h3 id="1-2-Tungsten包含了哪些优化"><a href="#1-2-Tungsten包含了哪些优化" class="headerlink" title="1.2 Tungsten包含了哪些优化"></a>1.2 Tungsten包含了哪些优化</h3><ul>
+<li>内存管理和二进制处理：利用应用程序语义(sun.misc.Unsafe)显式管理内存，消除JVM对象模型和GC的开销</li>
+<li>Cache-aware computation(缓存感知计算)： 利用memory hierarchy（内存阶层）的算法和数据结构</li>
+<li>Code Generation: 利用现代编译器和CPU生成代码</li>
+<li>没有Virtual Function Dispatches： 减少复杂的CPU调用，虚函数调度多时，会对性能有影响</li>
+<li>中间数据在内存 VS. 中间数据在CPU寄存器：Tungsten Phase 2将中间数据放到CPU寄存器，相比于从内存获取数据，从CPU寄存器获取数据的周期数减少了一个数量级。</li>
+<li>loop unrolling(循环展开)and SIMD: 更好地利用现代编译器和CPU能力进行编译，执行简单的循环，而不是复杂的函数调用。</li>
+</ul>
+<h2 id="2-内存管理和二进制处理（binary-processing）"><a href="#2-内存管理和二进制处理（binary-processing）" class="headerlink" title="2. 内存管理和二进制处理（binary processing）"></a>2. 内存管理和二进制处理（binary processing）</h2><p>JVM应用依赖垃圾收集器来管理内存，随着spark应用性能推到极限，JVM对象开销不可忽视。</p>
+<h3 id="2-1-Java对象占据了太多内存"><a href="#2-1-Java对象占据了太多内存" class="headerlink" title="2.1 Java对象占据了太多内存"></a>2.1 Java对象占据了太多内存</h3><p>JVM对象占据了大量的固有（inherent）内存开销。比如说，字符串”abcd”使用UTF-8编码时占用4个bytes。JVM本地的字符串实现，以不同方式存储以适应更多场景。每个character编码<br>使用UTF-16耗费2bytes， 每个String对象包含12bytes的header和8bytes的hashcode。<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">java.lang.String object internals:</span><br><span class="line"></span><br><span class="line">OFFSET  SIZE  <span class="built_in"> TYPE </span>DESCRIPTION                    VALUE</span><br><span class="line">     0     4        (object header)                <span class="built_in">..</span>.</span><br><span class="line">     4     4        (object header)                <span class="built_in">..</span>.</span><br><span class="line">     8     4        (object header)                <span class="built_in">..</span>.</span><br><span class="line">    12     4 char[] String.value                   []</span><br><span class="line">    16     4    int String.hash                    0</span><br><span class="line">    20     4    int String.hash32                  0</span><br><span class="line">Instance size: 24 bytes (reported by Instrumentation API)</span><br></pre></td></tr></table></figure></p>
+<p><strong>一个简单的4bytes字符串在JVM对象模型中占用了超过48bytes！！！</strong></p>
+<h3 id="2-2-Java垃圾回收效率可能会很差"><a href="#2-2-Java垃圾回收效率可能会很差" class="headerlink" title="2.2 Java垃圾回收效率可能会很差"></a>2.2 Java垃圾回收效率可能会很差</h3><p>JVM对象模型的另一个重要开销是内存回收。年轻代需要高频地分配和回收内存，当GC可以可靠地估算对象的生命周期时会很有效，但是当GC不能有效估算对象的生命周期时，效果会很差。<br>因此如果想要获得性能，需要使用GC调优的黑魔法，使用大量关于对象生命周期的JVM参数，提供更多关于JVM的信息。</p>
+<p>因为Spark应用不仅仅是通用程序，Spark了解数据如何在计算的各个阶段以及job和task的范围内流动。Spark比JVM垃圾收集器更了解内存块的生命周期，<br>可以比JVM更有效地管理内存。</p>
+<h3 id="2-3-通过显式管理内存和二进制数据（而不是java对象模型）来解决"><a href="#2-3-通过显式管理内存和二进制数据（而不是java对象模型）来解决" class="headerlink" title="2.3 通过显式管理内存和二进制数据（而不是java对象模型）来解决"></a>2.3 通过显式管理内存和二进制数据（而不是java对象模型）来解决</h3><p>为了解决对象开销和GC效率低下的问题，Spark引入了显式的内存管理器，将大部分的Spark操作转换为直接操作二进制数据，而不是java对象。<br>这是基于JVM提供的<code>sun.misc.Unsafe</code>实现的高级功能，暴露了c-style的内存访问（显示分配，释放，指针计算）。<br>另外，Unsafe方法是固有(intrinsic)的，意味着每个方法调用都由JIT编译为单独的一条机器指令（machine instruction）。</p>
+<p>Spark 1.4 引入了新的hash map对DataFrames和SQL聚合，1.5会有更多的数据结构来满足大部分操作，包括sorting和joins。</p>
+<p><img src="/images/tungsten/new-hash-map.png" alt="new-hash-map"><br>总的来说，通过显式管理内存的手段，直接操作二进制数据, 而不是java对象, 可以消除GC开销, 提升Spark性能。</p>
+<h2 id="3-Cache-aware-Computation"><a href="#3-Cache-aware-Computation" class="headerlink" title="3. Cache-aware Computation"></a>3. Cache-aware Computation</h2><h3 id="3-1-什么是in-memory-Computation"><a href="#3-1-什么是in-memory-Computation" class="headerlink" title="3.1 什么是in-memory Computation"></a>3.1 什么是in-memory Computation</h3><p>Spark可以高效利用集群内存资源，比基于磁盘处理的解决方案高效很多。Spark也可以处理远大于内存的数据量，将数据透明地spill到磁盘，执行外部操作，比如排序和hash。</p>
+<h3 id="3-2-什么是cache-aware-Computation"><a href="#3-2-什么是cache-aware-Computation" class="headerlink" title="3.2 什么是cache-aware Computation"></a>3.2 什么是cache-aware Computation</h3><p>相似地，cache-aware computation 通过对L1/L2/L3级别的CPU cache的高效利用，可以更快地处理数据，比利用主存(main memory)还要快好几个数量级。</p>
+<p>在对Spark应用进行性能分析时，发现大部分的CPU时间都是在等待从main memory中fetch数据。因此设计了cache-friendly的算法和数据结构使得Spark<br>应用在提取数据上花费更少的时间。</p>
+<h3 id="3-3-举个栗子"><a href="#3-3-举个栗子" class="headerlink" title="3.3 举个栗子"></a>3.3 举个栗子</h3><p>记录（records）排序：标准排序过程是保存一个records的指针<strong>数组</strong>，使用快排来交换指针，直到所有records有序。因为顺序扫描访问，<br>所以排序很容易有好的cache hit rate，但是对指针<strong>列表</strong>排序，会有更低的cache hit rate，因为对比操作需要对两个(指向内存中任意位置的记录的)指针取消引用。<br><img src="/images/tungsten/cache-aware.png" alt="cache-aware"></p>
+<p>如何改善排序的缓存本地性？简单的方式是和指针一起，保存每个记录的key。如果sort key是64-bit integer, 就是用128-bit<br>(64-bit pointer和64-bit key)将每个记录保存在指针数组中。这样快排就可以使用pinter-key pairs，线性排序，而不需要随机内存访问。</p>
+<p>在Spark中，大部分操作都是可以简化为a small list of operations，比如aggregations，sorting和join。通过改善这些operation的效率。<br>可以整体改善Spark应用的效率。</p>
+<h2 id="4-代码生成"><a href="#4-代码生成" class="headerlink" title="4. 代码生成"></a>4. 代码生成</h2><p>Spark 之前在SQL和DataFrames中引入了code generation for expression evaluation,  解析表达式（Expression Evaluation）是对于特定<br>记录如（<code>age = 37</code>）计算一个表达式如（<code>age &lt; 40 and age &gt; 35</code>）的过程。</p>
+<p>Spark在运行时动态生成字节码，用于解析这些表达式。而不是通过较慢的解释器逐步解析表达式。</p>
+<p>相比于解释执行，代码生成：<br>1 减少了基础类型的装箱<br>2 更重要的是，避免昂贵的多态函数调度(虚函数调用)</p>
+<h3 id="4-1-vectorized-expression"><a href="#4-1-vectorized-expression" class="headerlink" title="4.1 vectorized expression"></a>4.1 vectorized expression</h3><p>当前Spark已经把代码生成扩展应用到了大部分内置表达式，并且计划把代码生成的级别从record-at-a-time提升到vectorized expression, 通过JIT<br>的能力，利用现代CPU中更好的指令流水线，实现一次处理多条记录。</p>
+<h3 id="4-2-除了expression-evaluation的代码生成-还有其他领域的代码生成应用"><a href="#4-2-除了expression-evaluation的代码生成-还有其他领域的代码生成应用" class="headerlink" title="4.2 除了expression evaluation的代码生成, 还有其他领域的代码生成应用"></a>4.2 除了expression evaluation的代码生成, 还有其他领域的代码生成应用</h3><p>1 内存二进制格式到wire-protocol的转换，用于shuffle。shuffle 当前经常以数据序列化为瓶颈，而不是下层的网络。通过代码生成，可以增加序列化<br>的吞吐量，相应的增加网路吞吐量。<br><img src="/images/tungsten/codegen.png" alt="code-gen"><br>单线程，八百万复杂数据记录的性能 -&gt; (Kryo vs. CodeGen) CodeGen的性能是Kryo性能的两倍</p>
+<h2 id="5-Tungsten和Tungsten之外"><a href="#5-Tungsten和Tungsten之外" class="headerlink" title="5 Tungsten和Tungsten之外"></a>5 Tungsten和Tungsten之外</h2><h3 id="5-1-Spark应用Tungsten"><a href="#5-1-Spark应用Tungsten" class="headerlink" title="5.1 Spark应用Tungsten"></a>5.1 Spark应用Tungsten</h3><p>Tungsten项目是Spark核心引擎设计的巨大变动。</p>
+<p>Spark 1.4 在DataFrame API中实现了aggregation operations的内存显式管理，同时支持自定义序列化器。</p>
+<p>Spark 1.5 扩展了二进制内存管理和cache-aware数据结构的覆盖范围。</p>
+<h3 id="5-2-Tungsten之外的待研究和优化点"><a href="#5-2-Tungsten之外的待研究和优化点" class="headerlink" title="5.2 Tungsten之外的待研究和优化点"></a>5.2 Tungsten之外的待研究和优化点</h3><p>研究对LLVM或者OpenCL的编译，因此Spark应用程序可以利用现代CPU中的SSE/SIMD指令，以及GPU中广泛的并行性来加快机器学习和图形计算的操作。</p>
+<h2 id="参考引用"><a href="#参考引用" class="headerlink" title="参考引用"></a>参考引用</h2><p>[1] <a href="https://databricks.com/blog/2015/04/28/project-tungsten-bringing-spark-closer-to-bare-metal.html" target="_blank" rel="noopener">https://databricks.com/blog/2015/04/28/project-tungsten-bringing-spark-closer-to-bare-metal.html</a></p>
+<p>[2] <a href="https://databricks.com/glossary/tungsten" target="_blank" rel="noopener">https://databricks.com/glossary/tungsten</a></p>
+<p>[3] <a href="https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html" target="_blank" rel="noopener">https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html</a></p>
+<p>[4] <a href="https://spoddutur.github.io/spark-notes/second_generation_tungsten_engine.html" target="_blank" rel="noopener">https://spoddutur.github.io/spark-notes/second_generation_tungsten_engine.html</a></p>
+<p>[5] <a href="https://www.linkedin.com/pulse/catalyst-tungsten-apache-sparks-speeding-engine-deepak-rajak/?articleId=6674601890514378752" target="_blank" rel="noopener">https://www.linkedin.com/pulse/catalyst-tungsten-apache-sparks-speeding-engine-deepak-rajak/?articleId=6674601890514378752</a></p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+<!--      -->
+    <p>
+<!--        <span id="busuanzi_container_site_pv">-->
+<!--            <span id="busuanzi_value_site_pv"></span>PV-->
+<!--        </span>-->
+<!--        <span id="busuanzi_container_site_uv">-->
+<!--            <span id="busuanzi_value_site_uv"></span>UV-->
+<!--        </span>-->
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

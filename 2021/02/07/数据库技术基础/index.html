@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="赵立攀的博客">
+    <meta name="keyword"  content="大数据">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        浅谈分布式数据库技术 - 赵立攀的博客
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> INTO THE TORNADO!!! </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar ">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>ZHAO LIPAN</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#浅谈分布式数据库技术-计算，优化，存储"><span class="toc-text">浅谈分布式数据库技术 (计算，优化，存储)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#编译执行和解释执行"><span class="toc-text">编译执行和解释执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#火山模型-Volcano-Iterator-Model"><span class="toc-text">火山模型(Volcano Iterator Model)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决火山模型导致-instruction-cache-misses-问题的两种方式：向量化执行和编译执行"><span class="toc-text">解决火山模型导致 instruction cache misses 问题的两种方式：向量化执行和编译执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#向量化执行-Vectorized-Query"><span class="toc-text">向量化执行(Vectorized Query)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编译执行-Compilation-Query"><span class="toc-text">编译执行(Compilation Query)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SIMD"><span class="toc-text">SIMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LLVM-JIT"><span class="toc-text">LLVM JIT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CodeGen"><span class="toc-text">CodeGen</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Operator-算子"><span class="toc-text">Operator 算子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#词法分析-语法分析-语义分析-AST-关系代数表达式-RA"><span class="toc-text">词法分析 语法分析 语义分析 AST 关系代数表达式(RA)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#词法分析-lexer-scanner"><span class="toc-text">词法分析(lexer/scanner)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#语法分析-parser-syntax-analysis"><span class="toc-text">语法分析(parser/syntax analysis)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#语义分析-semantic-analysis-context-sensitive-analysis"><span class="toc-text">语义分析 semantic analysis/ context-sensitive analysis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AST-Abstract-Syntax-Tree"><span class="toc-text">AST Abstract Syntax Tree</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#由-AST-到关系代数表达式，可以使用-visitor-模式遍历"><span class="toc-text">由 AST 到关系代数表达式，可以使用 visitor 模式遍历</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查询优化器以关系代数表达式作为输入，输出查询执行计划。逻辑执行计划-物理执行计划。-单节点执行计划-分布式执行计划"><span class="toc-text">查询优化器以关系代数表达式作为输入，输出查询执行计划。逻辑执行计划/物理执行计划。 单节点执行计划/分布式执行计划</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#虚函数"><span class="toc-text">虚函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spark-tungsten"><span class="toc-text">spark tungsten</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PIPELINE"><span class="toc-text">PIPELINE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#存储系统-数据模型-数据组织-数据格式"><span class="toc-text">存储系统 数据模型 数据组织 数据格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#列存储-ORC-PARQUET"><span class="toc-text">列存储 ORC PARQUET</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cumulative-Compaction-Base-Compaction"><span class="toc-text">Cumulative Compaction / Base Compaction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RBO-CBO"><span class="toc-text">RBO CBO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MPP-SCATTER-GATHER"><span class="toc-text">MPP SCATTER/GATHER</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL-Expr"><span class="toc-text">SQL Expr</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC"><span class="toc-text">MVCC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#线性一致性-强一致性"><span class="toc-text">线性一致性/强一致性</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i> INTO THE TORNADO!!! </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        浅谈分布式数据库技术
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2021-02-07 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#数据库" title="数据库">数据库</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#SQL" title="SQL">SQL</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h1 id="浅谈分布式数据库技术-计算，优化，存储"><a href="#浅谈分布式数据库技术-计算，优化，存储" class="headerlink" title="浅谈分布式数据库技术 (计算，优化，存储)"></a>浅谈分布式数据库技术 (计算，优化，存储)</h1><h2 id="编译执行和解释执行"><a href="#编译执行和解释执行" class="headerlink" title="编译执行和解释执行"></a>编译执行和解释执行</h2><ul>
+<li>解释执行：火山模型和向量化执行</li>
+</ul>
+<p>常用于OLTP,  也用于一些老的OLAP</p>
+<p>Oracle, MySQL, SQL Server, Doris</p>
+<ul>
+<li>编译执行：<br>通常用语OLAP分析<br>HyPer, MemSQL, Hekato, Impala, Spark Tungsten[2]</li>
+</ul>
+<h2 id="火山模型-Volcano-Iterator-Model"><a href="#火山模型-Volcano-Iterator-Model" class="headerlink" title="火山模型(Volcano Iterator Model)"></a>火山模型(Volcano Iterator Model)</h2><p>火山模型[1] </p>
+<p>因为在90年代，计算机的内存资源昂贵，相比于CPU的执行效率，IO效率要更差(IO墙效应)，因此火山模型将内存资源更多地用于IO的缓存设计，没有优化CPU的执行效率[3]</p>
+<p>关系代数算子(relational-algebraic operator/RA operator)：</p>
+<p>tuple stream:</p>
+<p>interface: open, next, close; next调用从stream中产生新的tuple</p>
+<p>虚函数调用开销：next调用导致很深的虚函数嵌套，编译器无法对虚函数进行inline优化，每次虚函数调用都需要查找虚函数表。</p>
+<p>CPU分支预测不友好：复杂的虚函数嵌套容易导致预测失败并且流水线变得混乱-&gt;CPU执行效率低下</p>
+<p>instruction：指令</p>
+<p>scalar:标量 a tuple data</p>
+<p>vector:矢量 a vector(batch) of data</p>
+<p>loop unrolling or loop pipelining: 循环展开 循环流水线</p>
+<p>缺点：<br>指令缓存未命中 instruction cache misses：<br>指令和数据会被加载到Cache Memory中，如果查询过大，生成的execution code会更多，指令也会更多，并且一个general query execution code会导致更多的branching，这些指令都缓存到Cache Memory，那缓存中会存在更多的无用的指令。<br>更容易导致缓存未命中。<br>因为分支(branching)和抽象(abstraction)的问题，为了实现一个通用的query execution code generator，肯定会存在很多分支和抽象。</p>
+<h2 id="解决火山模型导致-instruction-cache-misses-问题的两种方式：向量化执行和编译执行"><a href="#解决火山模型导致-instruction-cache-misses-问题的两种方式：向量化执行和编译执行" class="headerlink" title="解决火山模型导致 instruction cache misses 问题的两种方式：向量化执行和编译执行"></a>解决火山模型导致 instruction cache misses 问题的两种方式：向量化执行和编译执行</h2><p>向量化执行缓解了指令缓存未命中的问题。<br>编译执行解决了指令缓存未命中的问题。</p>
+<h3 id="向量化执行-Vectorized-Query"><a href="#向量化执行-Vectorized-Query" class="headerlink" title="向量化执行(Vectorized Query)"></a>向量化执行(Vectorized Query)</h3><p>向量化的是instruction还是data?<br>data</p>
+<p>利用DLP(Data Level Parallelism)，使用单指令操作多条记录<br>单指令是指无需为每一行记录频繁地load指令，加载一次指令，并操作一批数据。这样就可以减少instruction cache misses</p>
+<p>向量化执行：火山模型的改进方案，火山模型是tuple-at-a-time的实现，向量化执行是batch-tuple-at-a-time。</p>
+<p>每个算子执行完传递一行给上游算子继续执行，函数调用过多，且大量的虚函数调用，条件分支预测失败-&gt;CPU利用率低。</p>
+<p>缓解了instruction cache misses问题，但没有根治。</p>
+<h3 id="编译执行-Compilation-Query"><a href="#编译执行-Compilation-Query" class="headerlink" title="编译执行(Compilation Query)"></a>编译执行(Compilation Query)</h3><ul>
+<li>什么是编译执行？<br>从编译层面解决instruction cache misses的问题。</li>
+</ul>
+<p>execution code generation 不应该包含不必要的部分：包括branching和abstraction。</p>
+<p>Volcano Iterator Model是非常通用的，适合所有查询，所以包含了很多branching和abstraction。</p>
+<p>每次针对查询本身生成特定代码，消除冗余branching和abstraction。</p>
+<ul>
+<li>编译执行如何实现？</li>
+<li>确定各种算子和算子的执行顺序</li>
+<li>合并各种函数调用为一个</li>
+<li>基于存储格式和硬件支持，应用优化，比如循环展开，循环流水线和SIMD指令</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>没有虚函数调用</li>
+<li>数据在寄存器中</li>
+<li>编译器循环展开，循环流水线，SIMD的应用</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>编译开销：为查询生成定制的查询代码存在一定开销。对于数据量很少的查询来说，编译开销可能比执行开销更小。</li>
+</ul>
+<h2 id="SIMD"><a href="#SIMD" class="headerlink" title="SIMD"></a>SIMD</h2><p>single instruction multiple data</p>
+<h2 id="LLVM-JIT"><a href="#LLVM-JIT" class="headerlink" title="LLVM JIT"></a>LLVM JIT</h2><h2 id="CodeGen"><a href="#CodeGen" class="headerlink" title="CodeGen"></a>CodeGen</h2><h2 id="Operator-算子"><a href="#Operator-算子" class="headerlink" title="Operator 算子"></a>Operator 算子</h2><ul>
+<li>project</li>
+<li>filter</li>
+<li>scan</li>
+<li>join</li>
+<li>Aggregate</li>
+<li>union</li>
+</ul>
+<h2 id="词法分析-语法分析-语义分析-AST-关系代数表达式-RA"><a href="#词法分析-语法分析-语义分析-AST-关系代数表达式-RA" class="headerlink" title="词法分析 语法分析 语义分析 AST 关系代数表达式(RA)"></a>词法分析 语法分析 语义分析 AST 关系代数表达式(RA)</h2><p>编译器分为frontend和backend，lexer是frontend的第一阶段。</p>
+<h3 id="词法分析-lexer-scanner"><a href="#词法分析-lexer-scanner" class="headerlink" title="词法分析(lexer/scanner)"></a>词法分析(lexer/scanner)</h3><p>如：jflex<br>词法单元分类：<br>identifier: names the programmer chooses;<br>keyword: names already in the programming language;<br>separator (also known as punctuators): punctuation characters and paired-delimiters;<br>operator: symbols that operate on arguments and produce results;<br>literal: numeric, logical, textual, reference literals;<br>comment: line, block (Depends on the compiler if compiler implements comments as tokens otherwise it will be stripped).</p>
+<p>Examples of token values<br>Token name            Sample token values<br>identifier                x, color, UP<br>keyword                    if, while, return<br>separator                }, (, ;<br>operator                +, &lt;, =<br>literal                    true, 6.02e23, “music”<br>comment                    /<em> Retrieves user data </em>/, // must be negative</p>
+<p>输入：<br>x = a + b <em> 2;<br>输出：(token name, token value)<br>[(identifier, x), (operator, =), (identifier, a), (operator, +), (identifier, b), (operator, </em>), (literal, 2), (separator, ;)]</p>
+<h3 id="语法分析-parser-syntax-analysis"><a href="#语法分析-parser-syntax-analysis" class="headerlink" title="语法分析(parser/syntax analysis)"></a>语法分析(parser/syntax analysis)</h3><p>scannerless parser：将lexer和parser合并为一步，并发执行。<br>parser是frontend的第二阶段。<br>如：cup</p>
+<p>实现：</p>
+<ul>
+<li>正则表达式</li>
+<li>模式匹配</li>
+</ul>
+<p>token生成表达式Expr，在context-free语法下，按照token出现的<em>顺序</em>，递归组成Expr。</p>
+<p>输入：tokens</p>
+<p>输出: parse tree / abstract syntax tree 抽象语法结构树</p>
+<h3 id="语义分析-semantic-analysis-context-sensitive-analysis"><a href="#语义分析-semantic-analysis-context-sensitive-analysis" class="headerlink" title="语义分析 semantic analysis/ context-sensitive analysis"></a>语义分析 semantic analysis/ context-sensitive analysis</h3><p>验证表达式含义，并执行适当的操作: 从source code收集语义信息，类型检查，变量声明。</p>
+<p>编译器</p>
+<p>输入：AST?</p>
+<p>输出：</p>
+<h3 id="AST-Abstract-Syntax-Tree"><a href="#AST-Abstract-Syntax-Tree" class="headerlink" title="AST Abstract Syntax Tree"></a>AST Abstract Syntax Tree</h3><p>AST: source code的抽象语法结构<br>抽象：没有展示source code中出现的所有细节</p>
+<p>输入：</p>
+<p>输出： </p>
+<h3 id="由-AST-到关系代数表达式，可以使用-visitor-模式遍历"><a href="#由-AST-到关系代数表达式，可以使用-visitor-模式遍历" class="headerlink" title="由 AST 到关系代数表达式，可以使用 visitor 模式遍历"></a>由 AST 到关系代数表达式，可以使用 visitor 模式遍历</h3><h3 id="查询优化器以关系代数表达式作为输入，输出查询执行计划。逻辑执行计划-物理执行计划。-单节点执行计划-分布式执行计划"><a href="#查询优化器以关系代数表达式作为输入，输出查询执行计划。逻辑执行计划-物理执行计划。-单节点执行计划-分布式执行计划" class="headerlink" title="查询优化器以关系代数表达式作为输入，输出查询执行计划。逻辑执行计划/物理执行计划。 单节点执行计划/分布式执行计划"></a>查询优化器以关系代数表达式作为输入，输出查询执行计划。逻辑执行计划/物理执行计划。 单节点执行计划/分布式执行计划</h3><h2 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h2><p>虚函数：定义了要执行的目标函数，但目标的具体指向在编译时无法确定。</p>
+<h2 id="spark-tungsten"><a href="#spark-tungsten" class="headerlink" title="spark tungsten"></a>spark tungsten</h2><p>特性：</p>
+<ul>
+<li>可以被继承和覆盖，在面向对象中是多态的重要组成部分</li>
+<li>Java中所有非final类型的方法都是虚函数</li>
+</ul>
+<h2 id="PIPELINE"><a href="#PIPELINE" class="headerlink" title="PIPELINE"></a>PIPELINE</h2><p>上游stage不需要等下游stage完全执行结束就可以拉取数据并执行计算</p>
+<h2 id="存储系统-数据模型-数据组织-数据格式"><a href="#存储系统-数据模型-数据组织-数据格式" class="headerlink" title="存储系统 数据模型 数据组织 数据格式"></a>存储系统 数据模型 数据组织 数据格式</h2><h2 id="列存储-ORC-PARQUET"><a href="#列存储-ORC-PARQUET" class="headerlink" title="列存储 ORC PARQUET"></a>列存储 ORC PARQUET</h2><h2 id="Cumulative-Compaction-Base-Compaction"><a href="#Cumulative-Compaction-Base-Compaction" class="headerlink" title="Cumulative Compaction / Base Compaction"></a>Cumulative Compaction / Base Compaction</h2><h2 id="RBO-CBO"><a href="#RBO-CBO" class="headerlink" title="RBO CBO"></a>RBO CBO</h2><h2 id="MPP-SCATTER-GATHER"><a href="#MPP-SCATTER-GATHER" class="headerlink" title="MPP SCATTER/GATHER"></a>MPP SCATTER/GATHER</h2><h2 id="SQL-Expr"><a href="#SQL-Expr" class="headerlink" title="SQL Expr"></a>SQL Expr</h2><ul>
+<li>literal</li>
+<li>expr</li>
+<li>predicate</li>
+<li>conjunction </li>
+<li>function</li>
+<li>ref</li>
+<li>slot<br>PREDICATE CONJUNCTION</li>
+</ul>
+<p>FROM<br>JOIN ON<br>WHERE<br>ORDER BY<br>GROUP BY<br>HAVING</p>
+<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><h2 id="线性一致性-强一致性"><a href="#线性一致性-强一致性" class="headerlink" title="线性一致性/强一致性"></a>线性一致性/强一致性</h2><p>## </p>
+<p>[1] Vectorized and Compiled Queries — Part 1 <a href="https://medium.com/@tilakpatidar/vectorized-and-compiled-queries-part-1-37794c3860cc" target="_blank" rel="noopener">https://medium.com/@tilakpatidar/vectorized-and-compiled-queries-part-1-37794c3860cc</a><br>[2] 数据库查询引擎的进化之路 <a href="https://zhuanlan.zhihu.com/p/41562506" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/41562506</a><br>[3] Volcano, an Extensible and Parallel Query Evaluation System</p>
+<p>SQL原理解析<br><a href="https://mp.weixin.qq.com/s/v1jI1MxEHPT5czCWd0kRxw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/v1jI1MxEHPT5czCWd0kRxw</a></p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+<!--      -->
+    <p>
+<!--        <span id="busuanzi_container_site_pv">-->
+<!--            <span id="busuanzi_value_site_pv"></span>PV-->
+<!--        </span>-->
+<!--        <span id="busuanzi_container_site_uv">-->
+<!--            <span id="busuanzi_value_site_uv"></span>UV-->
+<!--        </span>-->
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

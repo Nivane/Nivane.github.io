@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="赵立攀的博客">
+    <meta name="keyword"  content="大数据">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        Spark SQL - Join Types - 赵立攀的博客
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> INTO THE TORNADO!!! </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar ">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>ZHAO LIPAN</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark-SQL-Join-Types"><span class="toc-text">Spark SQL - Join Types</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-常见的SQL-JOIN"><span class="toc-text">1. 常见的SQL JOIN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-left-semi-join"><span class="toc-text">2. left semi join</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-left-anti-join"><span class="toc-text">3. left anti join</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-参考引用"><span class="toc-text">4. 参考引用</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i> INTO THE TORNADO!!! </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        Spark SQL - Join Types
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2021-02-23 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Spark" title="Spark">Spark</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#Join" title="Join">Join</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h1 id="Spark-SQL-Join-Types"><a href="#Spark-SQL-Join-Types" class="headerlink" title="Spark SQL - Join Types"></a>Spark SQL - Join Types</h1><h2 id="1-常见的SQL-JOIN"><a href="#1-常见的SQL-JOIN" class="headerlink" title="1. 常见的SQL JOIN"></a>1. 常见的SQL JOIN</h2><p><img src="/images/join_types/joins.png" alt="joins"></p>
+<table>
+<thead>
+<tr>
+<th>SQL</th>
+<th>Name</th>
+<th>JoinType</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CROSS</strong></td>
+<td>cross</td>
+<td>CROSS</td>
+</tr>
+<tr>
+<td><strong>INNER</strong></td>
+<td>inner</td>
+<td>INNER</td>
+</tr>
+<tr>
+<td><strong>FULL OUTER</strong></td>
+<td>outer, full, full outer</td>
+<td>FULL OUTER</td>
+</tr>
+<tr>
+<td><strong>LEFT ANTI</strong></td>
+<td>left anti, anti</td>
+<td>LEFT ANTI</td>
+</tr>
+<tr>
+<td><strong>LEFT OUTER</strong></td>
+<td>left outer, left</td>
+<td>LEFT OUTER</td>
+</tr>
+<tr>
+<td><strong>LEFT SEMI</strong></td>
+<td>left semi, semi</td>
+<td>LEFT SEMI</td>
+</tr>
+<tr>
+<td><strong>RIGHT OUTER</strong></td>
+<td>right outer, right</td>
+<td>RIGHT OUTER</td>
+</tr>
+<tr>
+<td><strong>NATURAL</strong></td>
+<td>Special case for INNER, LEFT OUTER, RIGHT OUTER, FULL OUTER</td>
+<td>NATURAL</td>
+</tr>
+<tr>
+<td><strong>USING</strong></td>
+<td>Special case for INNER, LEFT OUTER, LEFT SEMI, RIGHT OUTER, FULL OUTER, LEFT ANTI</td>
+<td>USING</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-left-semi-join"><a href="#2-left-semi-join" class="headerlink" title="2. left semi join"></a>2. left semi join</h2><p>当JOIN条件成立时，返回左表中的数据。如果mytable1中某行的id在mytable2的所有id中出现过，则此行保留在结果集中。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable1 a <span class="keyword">LEFT</span> SEMI <span class="keyword">JOIN</span> mytable2 b <span class="keyword">ON</span> a.id=b.id;</span><br></pre></td></tr></table></figure>
+<p><strong>只会返回mytable1中的数据</strong>，只要mytable1的id在mytable2的id中出现。</p>
+<h2 id="3-left-anti-join"><a href="#3-left-anti-join" class="headerlink" title="3. left anti join"></a>3. left anti join</h2><p>当JOIN条件不成立时，返回左表中的数据。如果mytable1中某行的id在mytable2的所有id中没有出现过，则此行保留在结果集中。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable1 a <span class="keyword">LEFT</span> ANTI <span class="keyword">JOIN</span> mytable2 b <span class="keyword">ON</span> a.id=b.id;</span><br></pre></td></tr></table></figure>
+<p><strong>只会返回mytable1中的数据</strong>，只要mytable1的id在mytable2的id没有出现。</p>
+<h2 id="4-参考引用"><a href="#4-参考引用" class="headerlink" title="4. 参考引用"></a>4. 参考引用</h2><p>[1] <a href="https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-joins.html" target="_blank" rel="noopener">https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-joins.html</a></p>
+<p>[2] <a href="https://stackoverflow.com/questions/45990633/what-are-the-various-join-types-in-spark/45990634" target="_blank" rel="noopener">https://stackoverflow.com/questions/45990633/what-are-the-various-join-types-in-spark/45990634</a></p>
+<p>[3] <a href="https://www.alibabacloud.com/help/zh/doc-detail/73784.htm" target="_blank" rel="noopener">https://www.alibabacloud.com/help/zh/doc-detail/73784.htm</a></p>
+<p>[4] <a href="https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html" target="_blank" rel="noopener">https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html</a></p>
+<p>[5] <a href="https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-join.html" target="_blank" rel="noopener">https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-join.html</a></p>
+<p>[6] <a href="https://help.aliyun.com/document_detail/73784.html" target="_blank" rel="noopener">https://help.aliyun.com/document_detail/73784.html</a></p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+<!--      -->
+    <p>
+<!--        <span id="busuanzi_container_site_pv">-->
+<!--            <span id="busuanzi_value_site_pv"></span>PV-->
+<!--        </span>-->
+<!--        <span id="busuanzi_container_site_uv">-->
+<!--            <span id="busuanzi_value_site_uv"></span>UV-->
+<!--        </span>-->
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
