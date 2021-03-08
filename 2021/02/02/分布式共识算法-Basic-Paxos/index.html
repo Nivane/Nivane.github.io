@@ -89,7 +89,7 @@
     </div>
     
         <div id="toc" class="toc-article">
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Basic-Paxos"><span class="toc-text">Basic Paxos</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Paxos"><span class="toc-text">什么是Paxos</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Basic-Paxos-1"><span class="toc-text">Basic Paxos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#角色"><span class="toc-text">角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#提案"><span class="toc-text">提案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Quorum"><span class="toc-text">Quorum</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二阶段提交"><span class="toc-text">二阶段提交</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-Paxos几个原则"><span class="toc-text">Basic Paxos几个原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二阶段提交场景"><span class="toc-text">二阶段提交场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#领导者选举"><span class="toc-text">领导者选举</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Paxos"><span class="toc-text">什么是Paxos</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Basic-Paxos"><span class="toc-text">Basic Paxos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#角色"><span class="toc-text">角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#提案"><span class="toc-text">提案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Quorum"><span class="toc-text">Quorum</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二阶段提交"><span class="toc-text">二阶段提交</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-Paxos几个原则"><span class="toc-text">Basic Paxos几个原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二阶段提交场景"><span class="toc-text">二阶段提交场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#领导者选举"><span class="toc-text">领导者选举</span></a></li></ol>
 </div>
     
 </div>
@@ -138,7 +138,7 @@
 </span>
     </div>
     <div class="post-content ">
-        <h1 id="Basic-Paxos"><a href="#Basic-Paxos" class="headerlink" title="Basic Paxos"></a>Basic Paxos</h1><h2 id="什么是Paxos"><a href="#什么是Paxos" class="headerlink" title="什么是Paxos"></a>什么是Paxos</h2><ul>
+        <h2 id="什么是Paxos"><a href="#什么是Paxos" class="headerlink" title="什么是Paxos"></a>什么是Paxos</h2><ul>
 <li><p>Paxos是解决分布式共识问题的一系列算法，由 <a href="https://lamport.azurewebsites.net/" target="_blank" rel="noopener">Leslie Lamport</a> 提出，大神的几篇关于Paxos的论文：</p>
 <p>  <a href="https://lamport.azurewebsites.net/pubs/lamport-paxos.pdf" target="_blank" rel="noopener">1998-The Part-Time Parliament</a></p>
 <p>  <a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf" target="_blank" rel="noopener">2001-Paxos Made Simple</a></p>
@@ -148,7 +148,7 @@
 <li><p>共识(Consensus)是多个节点就某个提案(n, v)达成统一结果的过程。因为参与者本身会失败，或者参与者之间的通信会失败，比如网络分区，消息延迟，节点故障，所以这是个棘手的问题。</p>
 </li>
 </ul>
-<h2 id="Basic-Paxos-1"><a href="#Basic-Paxos-1" class="headerlink" title="Basic Paxos"></a>Basic Paxos</h2><ul>
+<h2 id="Basic-Paxos"><a href="#Basic-Paxos" class="headerlink" title="Basic Paxos"></a>Basic Paxos</h2><ul>
 <li>就单个值达成共识，如果大多数节点就单个值达成共识，值就不会再变了。不涉及连续多个值的共识协商。</li>
 </ul>
 <h3 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h3><ul>

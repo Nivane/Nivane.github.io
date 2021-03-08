@@ -11,7 +11,7 @@
 
     <title>
         
-        Spark Tungsten：优化Spark核心执行引擎 - 赵立攀的博客
+        Spark Tungsten(钨)：优化Spark核心执行引擎 - 赵立攀的博客
         
     </title>
 
@@ -89,7 +89,7 @@
     </div>
     
         <div id="toc" class="toc-article">
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark-Tungsten-钨"><span class="toc-text">Spark Tungsten(钨)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-什么是Tungsten"><span class="toc-text">1. 什么是Tungsten</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-为什么CPU成为了瓶颈"><span class="toc-text">1.1 为什么CPU成为了瓶颈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Tungsten包含了哪些优化"><span class="toc-text">1.2 Tungsten包含了哪些优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-内存管理和二进制处理（binary-processing）"><span class="toc-text">2. 内存管理和二进制处理（binary processing）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Java对象占据了太多内存"><span class="toc-text">2.1 Java对象占据了太多内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Java垃圾回收效率可能会很差"><span class="toc-text">2.2 Java垃圾回收效率可能会很差</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-通过显式管理内存和二进制数据（而不是java对象模型）来解决"><span class="toc-text">2.3 通过显式管理内存和二进制数据（而不是java对象模型）来解决</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Cache-aware-Computation"><span class="toc-text">3. Cache-aware Computation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-什么是in-memory-Computation"><span class="toc-text">3.1 什么是in-memory Computation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-什么是cache-aware-Computation"><span class="toc-text">3.2 什么是cache-aware Computation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-举个栗子"><span class="toc-text">3.3 举个栗子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-代码生成"><span class="toc-text">4. 代码生成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-vectorized-expression"><span class="toc-text">4.1 vectorized expression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-除了expression-evaluation的代码生成-还有其他领域的代码生成应用"><span class="toc-text">4.2 除了expression evaluation的代码生成, 还有其他领域的代码生成应用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Tungsten和Tungsten之外"><span class="toc-text">5 Tungsten和Tungsten之外</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Spark应用Tungsten"><span class="toc-text">5.1 Spark应用Tungsten</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Tungsten之外的待研究和优化点"><span class="toc-text">5.2 Tungsten之外的待研究和优化点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考引用"><span class="toc-text">参考引用</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-什么是Tungsten"><span class="toc-text">1. 什么是Tungsten</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-为什么CPU成为了瓶颈"><span class="toc-text">1.1 为什么CPU成为了瓶颈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Tungsten包含了哪些优化"><span class="toc-text">1.2 Tungsten包含了哪些优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-内存管理和二进制处理（binary-processing）"><span class="toc-text">2. 内存管理和二进制处理（binary processing）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Java对象占据了太多内存"><span class="toc-text">2.1 Java对象占据了太多内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Java垃圾回收效率可能会很差"><span class="toc-text">2.2 Java垃圾回收效率可能会很差</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-通过显式管理内存和二进制数据（而不是java对象模型）来解决"><span class="toc-text">2.3 通过显式管理内存和二进制数据（而不是java对象模型）来解决</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Cache-aware-Computation"><span class="toc-text">3. Cache-aware Computation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-什么是in-memory-Computation"><span class="toc-text">3.1 什么是in-memory Computation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-什么是cache-aware-Computation"><span class="toc-text">3.2 什么是cache-aware Computation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-举个栗子"><span class="toc-text">3.3 举个栗子</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-代码生成"><span class="toc-text">4. 代码生成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-vectorized-expression"><span class="toc-text">4.1 vectorized expression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-除了expression-evaluation的代码生成-还有其他领域的代码生成应用"><span class="toc-text">4.2 除了expression evaluation的代码生成, 还有其他领域的代码生成应用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Tungsten和Tungsten之外"><span class="toc-text">5 Tungsten和Tungsten之外</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Spark应用Tungsten"><span class="toc-text">5.1 Spark应用Tungsten</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Tungsten之外的待研究和优化点"><span class="toc-text">5.2 Tungsten之外的待研究和优化点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考引用"><span class="toc-text">参考引用</span></a></li></ol>
 </div>
     
 </div>
@@ -120,7 +120,7 @@
 
 <div class="post-container">
     <div class="post-title">
-        Spark Tungsten：优化Spark核心执行引擎
+        Spark Tungsten(钨)：优化Spark核心执行引擎
     </div>
 
     <div class="post-meta">
@@ -138,7 +138,7 @@
 </span>
     </div>
     <div class="post-content ">
-        <h1 id="Spark-Tungsten-钨"><a href="#Spark-Tungsten-钨" class="headerlink" title="Spark Tungsten(钨)"></a>Spark Tungsten(钨)</h1><h2 id="1-什么是Tungsten"><a href="#1-什么是Tungsten" class="headerlink" title="1. 什么是Tungsten"></a>1. 什么是Tungsten</h2><p>Tungsten是自Spark项目创建以来对Spark执行引擎的最大修改，从本质上改善了Spark应用的内存和CPU执行效率，将性能向到现代硬件的极限推进。</p>
+        <h2 id="1-什么是Tungsten"><a href="#1-什么是Tungsten" class="headerlink" title="1. 什么是Tungsten"></a>1. 什么是Tungsten</h2><p>Tungsten是自Spark项目创建以来对Spark执行引擎的最大修改，从本质上改善了Spark应用的内存和CPU执行效率，将性能向到现代硬件的极限推进。</p>
 <p>事实上，Spark工作负载越来越受到CPU和内存的限制，而不是磁盘IO和网络通信，引发了大家对CPU执行效率的关注，最近的大数据工作负载性能研究表明了这一个趋势。</p>
 <h3 id="1-1-为什么CPU成为了瓶颈"><a href="#1-1-为什么CPU成为了瓶颈" class="headerlink" title="1.1 为什么CPU成为了瓶颈"></a>1.1 为什么CPU成为了瓶颈</h3><ul>
 <li>硬件角度：现在的硬件配置提供了越来越大的总IO带宽，比如10Gbps的网络连接, 高带宽的SSD或者条带HDD阵列用于存储。</li>

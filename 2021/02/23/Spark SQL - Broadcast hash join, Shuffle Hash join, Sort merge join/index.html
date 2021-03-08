@@ -89,7 +89,7 @@
     </div>
     
         <div id="toc" class="toc-article">
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark-SQL-Broadcast-Join-Shuffle-Hash-Join-Sort-Merge-Join"><span class="toc-text">Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-使用场景"><span class="toc-text">1. 使用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-hash-join"><span class="toc-text">2. hash join</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-分布式中，HASH-JOIN的两个变种"><span class="toc-text">2.1 分布式中，HASH JOIN的两个变种</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Broadcast-Hash-Join-BHJ"><span class="toc-text">3. Broadcast Hash Join (BHJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Shuffle-Hash-Join-SHJ"><span class="toc-text">4. Shuffle Hash Join (SHJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Sort-Merge-Join-SMJ"><span class="toc-text">5. Sort Merge Join (SMJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-参考引用"><span class="toc-text">6. 参考引用</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-使用场景"><span class="toc-text">1. 使用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-hash-join"><span class="toc-text">2. hash join</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-分布式中，HASH-JOIN的两个变种"><span class="toc-text">2.1 分布式中，HASH JOIN的两个变种</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Broadcast-Hash-Join-BHJ"><span class="toc-text">3. Broadcast Hash Join (BHJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Shuffle-Hash-Join-SHJ"><span class="toc-text">4. Shuffle Hash Join (SHJ)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Sort-Merge-Join-SMJ"><span class="toc-text">5. Sort Merge Join (SMJ)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-shuffle"><span class="toc-text">5.1 shuffle</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-sort"><span class="toc-text">5.2 sort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-merge"><span class="toc-text">5.3 merge</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-参考引用"><span class="toc-text">6. 参考引用</span></a></li></ol>
 </div>
     
 </div>
@@ -141,7 +141,7 @@
 </span>
     </div>
     <div class="post-content ">
-        <h1 id="Spark-SQL-Broadcast-Join-Shuffle-Hash-Join-Sort-Merge-Join"><a href="#Spark-SQL-Broadcast-Join-Shuffle-Hash-Join-Sort-Merge-Join" class="headerlink" title="Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join"></a>Spark SQL - Broadcast Join, Shuffle Hash Join, Sort Merge Join</h1><h2 id="1-使用场景"><a href="#1-使用场景" class="headerlink" title="1. 使用场景"></a>1. 使用场景</h2><ol>
+        <h2 id="1-使用场景"><a href="#1-使用场景" class="headerlink" title="1. 使用场景"></a>1. 使用场景</h2><ol>
 <li><p>Broadcast Hash Join</p>
 <p> 大表和超小表</p>
 <p> spark.sql.autoBroadcastJoinThreshold </p>
@@ -177,18 +177,9 @@
 <h2 id="5-Sort-Merge-Join-SMJ"><a href="#5-Sort-Merge-Join-SMJ" class="headerlink" title="5. Sort Merge Join (SMJ)"></a>5. Sort Merge Join (SMJ)</h2><p>spark.sql.join.preferSortMergeJoin</p>
 <p>SMJ适用于两张大表的join，两张大表join本身性能很重。</p>
 <p><img src="/images/3_common_join_spark_sql/smj.png" alt="smj"></p>
-<ul>
-<li>shuffle</li>
-</ul>
-<p>两张大表都根据key进行重新分区，数据分布到各个节点</p>
-<ul>
-<li>sort</li>
-</ul>
-<p>对每个分区节点的两个表的数据分别进行排序</p>
-<ul>
-<li>merge   </li>
-</ul>
-<p>对排序的数据进行join操作。遍历两个有序表，碰到相同Join key就merge输出，否则从数据小的一遍继续遍历。</p>
+<h3 id="5-1-shuffle"><a href="#5-1-shuffle" class="headerlink" title="5.1 shuffle"></a>5.1 shuffle</h3><p>两张大表都根据key进行重新分区，数据分布到各个节点</p>
+<h3 id="5-2-sort"><a href="#5-2-sort" class="headerlink" title="5.2 sort"></a>5.2 sort</h3><p>对每个分区节点的两个表的数据分别进行排序</p>
+<h3 id="5-3-merge"><a href="#5-3-merge" class="headerlink" title="5.3 merge"></a>5.3 merge</h3><p>对排序的数据进行join操作。遍历两个有序表，碰到相同Join key就merge输出，否则从数据小的一遍继续遍历。</p>
 <h2 id="6-参考引用"><a href="#6-参考引用" class="headerlink" title="6. 参考引用"></a>6. 参考引用</h2><p>[1] <a href="https://sq.163yun.com/blog/article/155507707635548160" target="_blank" rel="noopener">https://sq.163yun.com/blog/article/155507707635548160</a></p>
 <p>[2] <a href="https://www.linkedin.com/pulse/spark-sql-3-common-joins-explained-ram-ghadiyaram" target="_blank" rel="noopener">https://www.linkedin.com/pulse/spark-sql-3-common-joins-explained-ram-ghadiyaram</a></p>
 <p>[3] <a href="https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-SparkStrategy-JoinSelection.html" target="_blank" rel="noopener">https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-SparkStrategy-JoinSelection.html</a></p>
