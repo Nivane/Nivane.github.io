@@ -91,3 +91,12 @@ pagination_dir: page
 theme: aircloud
 
 
+
+
+deploy:
+  type: git
+  repo: https://github.com/Nivane/Nivane.github.io
+  # example, https://github.com/hexojs/hexojs.github.io
+  branch: master
+
+
